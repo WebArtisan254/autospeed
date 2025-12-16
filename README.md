@@ -8,6 +8,14 @@ The long‑term goal is to containerize the application with Docker and automate
 
 ---
 
+## Purpose
+
+AutoSpeed serves as a personal knowledge hub where I can publish articles, walkthroughs, and technical notes.  
+The goal is to document the steps I take while learning new technologies, solving problems, and building projects.  
+This includes topics like Linux workflows, Flask development, automation, DevOps tooling, and deployment strategies.
+
+---
+
 ## Features
 
 - Flask application factory (`create_app`)
@@ -17,9 +25,6 @@ The long‑term goal is to containerize the application with Docker and automate
 - Clean project layout for scalability
 - Ready for Docker containerization
 - Planned Ansible automation for Azure deployment
-
----
-
 
 ---
 
