@@ -28,11 +28,12 @@ AutoSpeed is intended as a personal portfolio and blogging website for technolog
 
 ### 1. Create and activate a virtual environment
 
---LINUX
 python3 -m venv venv
+
+--LINUX:
 . venv/bin/activate
 
---WINDOWS
+--WINDOWS:
 venv\Scripts\Activate
 
 ### 2. Install Dependencies
@@ -41,19 +42,19 @@ pip install -r requirements.txt
 
 ### 3. Set environment variables 
 
---LINUX
+--LINUX:
 export FLASK_APP=speed.py
 export FLASK_DEBUG=1
 
---WINDOWS
+--WINDOWS:
 $Env:Flask_app = "speed.py"
 
 ### 4. Run the application
 
---LINUX
+--LINUX:
 flask run
 
---WINDOWS
+--WINDOWS:
 flask run --debug
 
 Visit: `http://127.0.0.1:5000/`
