@@ -1,7 +1,7 @@
 # AutoSpeed 🚗⚡
 
 AutoSpeed is a modular Flask web application built using the application factory pattern and a clean blueprint architecture.  
-The frontend uses HTML, CSS, JavaScript, and Bootstrap 5. The backend uses Jinja templating for dynamic rendering, and SQLAlchemy
+The frontend uses HTML, CSS, and Bootstrap 5. The backend uses Jinja templating for dynamic rendering, and SQLAlchemy
 for the database. 
 
 The project will be deployed on Digital Ocean.
