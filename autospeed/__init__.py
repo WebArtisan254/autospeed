@@ -13,13 +13,17 @@ def create_app(test_config=None):
     else:
         app.config.from_prefixed_env()
 
-    #Proves app boots
-    @app.get("/health")
-    def health():
-        return {"status": "ok"}
-    
+    #Initialize extensions
+    #from .extensions import db
+    #db.init_app(app)
+
     #Register BluePrints 
     from . import auth
     app.register_blueprint(auth.bp)
+
+    #Health route for verification of app boot. 
+    @app.get("/health")
+    def health():
+        return {"status": "ok"}
 
     return app
