@@ -31,7 +31,9 @@ def create_app(test_config=None):
     from .errors import register_error_handlers
     register_error_handlers(app)
 
+    #Logs at app creation
     app.logger.info("Application created with environment=%s", app.config.get("ENV", "unknown"))
+    app.logger.info("Booting app with AUTOSPEED_ENV=%s", os.environ.get("AUTOSPEED_ENV", "development"))
 
     #Health route for verification of app boot. 
     @app.get("/health")
