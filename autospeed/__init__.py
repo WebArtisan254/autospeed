@@ -1,23 +1,30 @@
 from flask import Flask
+import os
 
 def create_app(test_config=None):
     app = Flask(__name__, instance_relative_config=True)
 
-    #Safe default for development
-    app.config.from_mapping(
-        SECRET_KEY="dev",
-    )
+    env = os.environ.get("AUTOSPEED_ENV", "development").lower()
 
-    if test_config is not None:
+    if env == "production":
+        from .config import ProductionConfig as Config
+    
+    elif env == "staging":
+        from .config import StagingConfig as Config
+    
+    else:
+        from .config import DevelopmentConfig as Config
+    
+    app.config.from_object(Config)
+
+    if test_config is None:
         app.config.from_mapping(test_config)
     else:
-        app.config.from_prefixed_env()
+        app.config.from_pyfile("application.cfg", silent=True)
 
-    #Initialize extensions
-    #from .extensions import db
-    #db.init_app(app)
+    app.config.from_prefixed_env()
 
-    #Register BluePrints 
+    #Register blueprints
     from . import auth
     app.register_blueprint(auth.bp)
 
