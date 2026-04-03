@@ -28,6 +28,9 @@ def create_app(test_config=None):
     from . import auth
     app.register_blueprint(auth.bp)
 
+    from .errors import register_error_handlers
+    register_error_handlers(app)
+
     #Health route for verification of app boot. 
     @app.get("/health")
     def health():
