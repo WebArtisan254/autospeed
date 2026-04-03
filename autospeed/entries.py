@@ -1,4 +1,4 @@
-from flask import Blueprint, render_template
+from flask import Blueprint, render_template, request, make_response, current_app
 
 bp = Blueprint("entries", __name__, url_prefix="/entries")
 
@@ -12,7 +12,20 @@ def create_form():
 
 @bp.post("/new")
 def create_submit():
-    return "Created", 201
+    #Read input from request
+    title = request.form.get("title")
+
+    #Log received
+    current_app.logger.info("Create entry request with title=%r", title)
+
+    if not title:
+        #Construct a response explicitly for a bad request
+        resp = make_response("Title is required", 400)
+        return resp
+    
+    #Construct a successful response with a custom status code
+    resp = make_response(f"Created entry: {title}", 201)
+    return resp
 
 @bp.get("/<int:entry_id>")
 def detail(entry_id):
