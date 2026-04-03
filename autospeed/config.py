@@ -1,9 +1,15 @@
 import os 
 
 class BaseConfig:
-    #Default
     SECRET_KEY = os.environ.get("AUTOSPEED_SECRET_KEY", "dev")
 
+    DATABASE_URL = os.environ.get("AUTOSPEED_DATABASE_URL")
+
+    UPLOAD_FOLDER = os.environ.get("AUTOSPEED_UPLOAD_FOLDER", "uploads")
+
+    USE_PROXY_FIX = os.environ.get("AUTOSPEED_USE_PROXY_FIX", "false").lower() == "true"
+
+#Default    
 class DevelopmentConfig(BaseConfig):
     DEBUG = True
     TESTING = False
