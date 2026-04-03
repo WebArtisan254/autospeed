@@ -31,6 +31,8 @@ def create_app(test_config=None):
     from .errors import register_error_handlers
     register_error_handlers(app)
 
+    app.logger.info("Application created with environment=%s", app.config.get("ENV", "unknown"))
+
     #Health route for verification of app boot. 
     @app.get("/health")
     def health():
