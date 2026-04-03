@@ -10,16 +10,17 @@ The project will be deployed on Digital Ocean.
 
 ## Purpose
 
-AutoSpeed is intended as a personal portfolio and blogging website for technology.  
+AutoSpeed is intended as a personal portfolio and blogging website for technology. Users can create, view, 
+edit, and delete entries.  
 
 ---
 
 ## Features
 
-- Flask application factory (`create_app`)
-- Modular blueprint structure (`main` blueprint)
-- Bootstrap 5 integration via Flask-Bootstrap5
-- Template inheritance with `base.html.`
+- Production built
+- Flask application factory
+- Modular blueprint structure
+- Template inheritance
 - Clean project layout for scalability
 
 ---
@@ -40,24 +41,10 @@ venv\Scripts\Activate
 
 pip install -r requirements.txt
 
-### 3. Set environment variables 
+### 3. Run the application
 
---LINUX:
-export FLASK_APP=speed.py
-export FLASK_DEBUG=1
-
---WINDOWS:
-$Env:Flask_app = "speed.py"
-
-### 4. Run the application
-
---LINUX:
-flask run
-
---WINDOWS:
-flask run --debug
-
-Visit: `http://127.0.0.1:5000/`
+[run in root]
+flask --app wsgi run --debug 
 
 ---
 
