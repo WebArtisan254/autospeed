@@ -1,4 +1,4 @@
-from flask import Blueprint, render_template, request, make_response, current_app
+from flask import Blueprint, render_template, request, make_response, current_app, flash, redirect, url_for
 
 bp = Blueprint("entries", __name__, url_prefix="/entries")
 
@@ -23,9 +23,9 @@ def create_submit():
         resp = make_response("Title is required", 400)
         return resp
     
-    #Construct a successful response with a custom status code
-    resp = make_response(f"Created entry: {title}", 201)
-    return resp
+    flash("Entry created.")
+    return redirect(url_for("entries.index"))
+    
 
 @bp.get("/<int:entry_id>")
 def detail(entry_id):

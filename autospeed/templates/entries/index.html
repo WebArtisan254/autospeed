@@ -1,2 +1,20 @@
-<h1>Entries</h1>
-<p>No entries yet.</p>
+{% extends "base.html" %}
+
+{% block title %}Entries{% endblock %}
+
+{% block content %}
+    <h1>Entries</h1>
+    {% if entries %}
+        <ul>
+            {% for entry in entries %}
+                <li>
+                    <a href="{{ url_for('entries.detail', entry_id=entry.id ) }}">
+                        {{ entry.title }}
+                    </a>
+                </li>
+            {% endfor %}
+        </ul>
+    {% else %}
+        <p>No entries yet.</p>
+    {% endif %}
+{% endblock %}
