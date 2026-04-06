@@ -6,23 +6,32 @@ bp = Blueprint("entries", __name__, url_prefix="/entries")
 def index():
     return render_template("entries/index.html", entries=[])
 
-@bp.get("/new")
-def create_form():
-    return render_template("entries/new.html")
+def _validate_entry_form(form):
+    title = (form.get("title") or "").strip()
 
-@bp.post("/new")
-def create_submit():
-    #Read input from request
-    title = request.form.get("title")
-
-    #Log received
-    current_app.logger.info("Create entry request with title=%r", title)
+    errors = {}
 
     if not title:
-        #Construct a response explicitly for a bad request
-        resp = make_response("Title is required", 400)
-        return resp
+        errors["title"] = "Title is required."
+
+    if title and len(title) > 120:
+        errors["title"] = "Title must be 120 characters or fewer."
+
+    return title, errors
+
+@bp.route("/new", methods=["GET", "POST"])
+def create():
+    if request.method == "GET":
+        return render_template("entries/new.html", title="", errors={})
     
+    title, errors = _validate_entry_form(request.form)
+
+    if errors:
+        current_app.logger.info("Entry create validation failed: %s", errors)
+        return render_template("entries/new.html", title=title, errors=errors), 400
+    
+    current_app.logger.info("Entry validated and accepted: title=%r", title)
+
     flash("Entry created.")
     return redirect(url_for("entries.index"))
     

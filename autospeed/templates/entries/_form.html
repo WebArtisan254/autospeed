@@ -1,4 +1,8 @@
 <label>
     Title 
-    <input type="text" name="title" value="{{ title or ''}}">
+    <input type="text" name="title" value="{{ title }}">
 </label>
+
+{% if errors.get("title") %}
+    <p>{{ errors["title"] }}</p>
+{% endif %}
