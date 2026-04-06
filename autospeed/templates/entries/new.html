@@ -4,8 +4,15 @@
 
 {% block content %}
     <h1>New Entry</h1>
-    <form method="post">
+    <form method="post" enctype="multipart/form-data">
         {% include "entries/_form.html" %}
+        <label>
+            Attachment (optional)
+            <input type="file" name="attachment">
+        </label>
+        {% if errors.get("attachment") %}
+            <p>{{ errors["attachment"] }}</p>
+        {% endif %}
         <button type="submit">Create</button>
     </form>
 {% endblock %}

@@ -34,6 +34,9 @@ def create_app(test_config=None):
     from . import entries
     app.register_blueprint(entries.bp)
 
+    upload_dir = app.config["UPLOAD_FOLDER"]
+    os.makedirs(upload_dir, exist_ok=True) 
+
     #Logs at app creation
     app.logger.info("Application created with environment=%s", app.config.get("ENV", "unknown"))
     app.logger.info("Booting app with AUTOSPEED_ENV=%s", os.environ.get("AUTOSPEED_ENV", "development"))
