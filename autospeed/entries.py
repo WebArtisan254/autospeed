@@ -35,29 +35,12 @@ def index():
 
     entries, total = list_entries(q=q, page=page, per_page=per_page)
 
-    if q:
-        filtered = [e for e in _ENTRIES if q.lower() in e["title"].lower()] if q else list(_ENTRIES)
-    else:
-        filtered = list(_ENTRIES)
-    
-    total = len(filtered)
-
-    start = (page - 1) * per_page
-    end = start + per_page
-
-    if total > 0 and start >= total:
-        page = (total - 1) // per_page + 1
-        start = (page - 1) * per_page
-        end = start + per_page
-
-    items = filtered[start:end]
-
     has_prev = page > 1
-    has_next = end < total
+    has_next = page * per_page < total
 
     return render_template(
         "entries/index.html", 
-        entries=items, 
+        entries=entries, 
         q=q,
         page=page, 
         per_page=per_page,
