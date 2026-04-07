@@ -4,17 +4,48 @@
 
 {% block content %}
     <h1>Entries</h1>
+    
+    <form method="get">
+        <label>
+            Search 
+            <input type="text" name="q" value="{{ q }}">
+        </label>
+
+        <label>
+            Per page 
+            <input type="number" name="per_page" min="1" max="50" value="{{ per_page }}">
+        </label>
+
+        <button type="submit">Apply</button>
+    </form>
+
+    <p>
+        Showing {{ entries|length }} of {{ total }} result {{ "if total == 1 else 's"}}.
+    </p>
+
     {% if entries %}
         <ul>
             {% for entry in entries %}
                 <li>
-                    <a href="{{ url_for('entries.detail', entry_id=entry.id ) }}">
-                        {{ entry.title }}
+                    <a href="{{ url_for('entries.detail', entry_id=entry.id if entry.id is defined else entry['id']) }}">
+                        {{ entry.title if entry.title is defined else entry['title'] }}
                     </a>
                 </li>
             {% endfor %}
         </ul>
     {% else %}
-        <p>No entries yet.</p>
+        <p>No matching entries</p>
     {% endif %}
+
+    <nav>
+        {% if has_prev %}
+            <a href="{{ url_for('entries.index', page=page-1, per_page=per_page, q=q) }}">Previous</a>
+        {% endif %}
+
+        <span>Page {{ page }}</span>
+
+        {% if has_next %}
+            <a href="{{ url_for('entries.index', page=page+1, per_page=per_page, q=q) }}">Next</a>
+        {% endif %}
+    </nav>
 {% endblock %}
