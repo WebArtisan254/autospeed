@@ -31,6 +31,10 @@
                         {{ entry.title if entry.title is defined else entry['title'] }}
                     </a>
                 </li>
+                <li>
+                    <a href="{{ url_for('entries.detail', entry_id=entry.id) }}">{{ entry.title }}</a>
+                    <span>({{ entry.status }})</span>
+                </li>
             {% endfor %}
         </ul>
     {% else %}
