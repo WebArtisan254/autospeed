@@ -1,7 +1,7 @@
-from flask import Blueprint, render_template, request, make_response, current_app, flash, redirect, url_for
+from flask import Blueprint, g, render_template, request, make_response, current_app, flash, redirect, url_for
 import os
 from werkzeug.utils import secure_filename
-from .db_access import list_entries
+from .db_access import create_entry, list_entries
 
 bp = Blueprint("entries", __name__, url_prefix="/entries")
 
@@ -30,24 +30,40 @@ def _allowed_file(filename):
 @bp.get('/')
 def index():
     q = (request.args.get("q") or "").strip()
-    page = max(int(request.args.get("page") or 1), 1)
-    per_page = min(max(int(request.args.get("per_page") or 10), 1), 50)
 
-    entries, total = list_entries(q=q, page=page, per_page=per_page)
+    try:
+        page = int(request.args.get("page") or 1)
+    except ValueError:
+        page = 1
+    page = max(page, 1)
+
+    try:
+        per_page = int(request.args.get("per_page") or 10)
+    except ValueError:
+        per_page = 10
+    per_page = min(max(per_page, 1), 50)
+
+    entries, total = list_entries(
+        user_id=g.current_user.id, 
+        q=q, 
+        page=page,
+        per_page=per_page,
+    )
 
     has_prev = page > 1
     has_next = page * per_page < total
 
     return render_template(
-        "entries/index.html", 
-        entries=entries, 
+        "entries/index.html",
+        entries=entries,
         q=q,
-        page=page, 
+        page=page,
         per_page=per_page,
         total=total,
         has_prev=has_prev,
         has_next=has_next,
     )
+
 def _validate_entry_form(form, files):
     title = (form.get("title") or "").strip()
 
@@ -72,22 +88,39 @@ def create():
     if request.method == "GET":
         return render_template("entries/new.html", title="", errors={})
     
-    title, attachment, errors = _validate_entry_form(request.form, request.files)
+    title, upload, errors = _validate_entry_form(request.form, request.files)
 
     if errors:
-        current_app.logger.info("Entry create validation failed: %s", errors)
         return render_template("entries/new.html", title=title, errors=errors), 400
+    
+    safe_name = None
+    original_name = None
+    file_path = None
 
-    if attachment and attachment.filename:
-        safe_name = secure_filename(attachment.filename)
-        upload_path = os.path.join(current_app.config["UPLOAD_FOLDER"], safe_name)
-        attachment.save(upload_path)
-        current_app.logger.info("Saved attachment %s", safe_name)
+    if upload and upload.filename:
+        safe_name = secure_filename(upload.filename)
+        original_name = upload.filename
+        file_path = os.path.join(current_app.config["UPLOAD_FOLDER"], safe_name)
 
-    _ENTRIES.append({
-        "id": len(_ENTRIES) + 1, 
-        "title": title,
-    })
+    try:
+        if file_path:
+            upload.save(file_path)
+        
+        create_entry(
+            user_id = g.current_user.id,
+            title=title, 
+            attachment_filename=safe_name,
+            attachment_original_name=original_name,
+        )
+    
+    except Exception:
+        if file_path and os.path.exists(file_path):
+            os.remove(file_path)
+
+        current_app.logger.exception("Failed to create entry")
+        errors = {"__all__": "Could not save entry. Please try again."}
+        return render_template("entries/new.html", title=title, errors=errors), 500
+
 
     flash("Entry created.")
     return redirect(url_for("entries.index"))

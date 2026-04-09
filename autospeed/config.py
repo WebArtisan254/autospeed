@@ -3,7 +3,7 @@ import os
 class BaseConfig:
     SECRET_KEY = os.environ.get("AUTOSPEED_SECRET_KEY", "dev")
 
-    DATABASE_URL = os.environ.get("AUTOSPEED_DATABASE_URL")
+    DATABASE_URL = os.environ.get("AUTOSPEED_DATABASE_URL", "sqlite:///instance/dev.db")
 
     UPLOAD_FOLDER = os.environ.get("AUTOSPEED_UPLOAD_FOLDER", "uploads")
 
@@ -13,6 +13,8 @@ class BaseConfig:
 class DevelopmentConfig(BaseConfig):
     DEBUG = True
     TESTING = False
+
+    DATABASE_URL = BaseConfig.DATABASE_URL or "sqlite:///instance/dev.db"
 
 class StagingConfig(BaseConfig):
     DEBUG = False

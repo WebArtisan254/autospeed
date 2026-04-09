@@ -1,5 +1,9 @@
 from flask import Flask
+from .models import db 
+from flask_migrate import Migrate
 import os
+
+migrate = Migrate()
 
 def create_app(test_config=None):
     app = Flask(__name__, instance_relative_config=True)
@@ -24,6 +28,12 @@ def create_app(test_config=None):
 
     app.config.from_prefixed_env()
 
+    #Database
+    app.config["SQLALCHEMY_DATABASE_URI"] = app.config["DATABASE_URL"]
+    app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
+
+    db.init_app(app)
+    migrate.init_app(app, db)
     #Register blueprints
     from . import auth
     app.register_blueprint(auth.bp)
