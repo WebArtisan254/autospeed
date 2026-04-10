@@ -1,9 +1,11 @@
 import os 
 
 class BaseConfig:
+    BASE_DIR = os.path.abspath(os.path.dirname(os.path.dirname(__file__)))
+    
     SECRET_KEY = os.environ.get("AUTOSPEED_SECRET_KEY", "dev")
 
-    DATABASE_URL = os.environ.get("AUTOSPEED_DATABASE_URL", "sqlite:///instance/dev.db")
+    DATABASE_URL = os.environ.get("AUTOSPEED_DATABASE_URL", f"sqlite:///{os.path.join(BASE_DIR, 'instance', 'dev.db')}")
 
     UPLOAD_FOLDER = os.environ.get("AUTOSPEED_UPLOAD_FOLDER", "uploads")
 
@@ -14,7 +16,7 @@ class DevelopmentConfig(BaseConfig):
     DEBUG = True
     TESTING = False
 
-    DATABASE_URL = BaseConfig.DATABASE_URL or "sqlite:///instance/dev.db"
+    DATABASE_URL = BaseConfig.DATABASE_URL or f"sqlite:///{BaseConfig.BASE_DIR}/instance/dev.db"
 
 class StagingConfig(BaseConfig):
     DEBUG = False

@@ -4,6 +4,19 @@ from sqlalchemy.orm import selectinload
 from .models import db, Entry, User
 from sqlalchemy.exc import IntegrityError
 
+def create_user(*, username: str, password: str) -> User:
+    user = User(username=username)
+    user.set_password(password)
+
+    db.session.add(user)
+    try:
+        db.session.commit()
+    except Exception:
+        db.session.rollback()
+        raise
+    
+    return user 
+
 def get_user_with_entries(user_id: int) -> User | None:
     stmt = (
         select(User)
