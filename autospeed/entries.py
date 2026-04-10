@@ -1,7 +1,8 @@
-from flask import Blueprint, g, render_template, request, make_response, current_app, flash, redirect, url_for
+from flask import Blueprint, render_template, request, make_response, current_app, flash, redirect, url_for
 import os
 from werkzeug.utils import secure_filename
 from .db_access import create_entry, list_entries
+from flask_login import current_user, login_required
 
 bp = Blueprint("entries", __name__, url_prefix="/entries")
 
@@ -28,6 +29,7 @@ def _allowed_file(filename):
     return "." in filename and filename.rsplit(".", 1)[1].lower() in ALLOWED_EXTENSIONS
 
 @bp.get('/')
+@login_required
 def index():
     q = (request.args.get("q") or "").strip()
 
@@ -44,7 +46,7 @@ def index():
     per_page = min(max(per_page, 1), 50)
 
     entries, total = list_entries(
-        user_id=g.current_user.id, 
+        user_id=current_user.id, 
         q=q, 
         page=page,
         per_page=per_page,
@@ -84,6 +86,7 @@ def _validate_entry_form(form, files):
     return title, attachment, errors
 
 @bp.route("/new", methods=["GET", "POST"])
+@login_required
 def create():
     if request.method == "GET":
         return render_template("entries/new.html", title="", errors={})
@@ -107,7 +110,7 @@ def create():
             upload.save(file_path)
         
         create_entry(
-            user_id = g.current_user.id,
+            user_id = current_user.id,
             title=title, 
             attachment_filename=safe_name,
             attachment_original_name=original_name,

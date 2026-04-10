@@ -6,6 +6,7 @@ from sqlalchemy import String, Integer, DateTime, ForeignKey
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 from sqlalchemy import Table, Column
 from werkzeug.security import generate_password_hash, check_password_hash
+from flask_login import UserMixin
 
 db = SQLAlchemy()
 
@@ -26,7 +27,7 @@ class Tag(db.Model):
         secondary=entry_tags,
         back_populates="tags",
     )
-class User(db.Model):
+class User(UserMixin, db.Model):
     __tablename__ = "users"
 
     id: Mapped[int] = mapped_column(Integer, primary_key=True)

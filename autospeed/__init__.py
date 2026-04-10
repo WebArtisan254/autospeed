@@ -2,6 +2,7 @@ from flask import Flask
 from .models import db 
 from flask_migrate import Migrate
 import os
+from .auth import login_manager, bp as auth_bp
 
 migrate = Migrate()
 
@@ -34,6 +35,10 @@ def create_app(test_config=None):
 
     db.init_app(app)
     migrate.init_app(app, db)
+
+    login_manager.init_app(app)
+    login_manager.login_view = "auth.login"
+
     #Register blueprints
     from . import auth
     app.register_blueprint(auth.bp)
