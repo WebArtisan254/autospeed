@@ -33,8 +33,11 @@ class User(UserMixin, db.Model):
     id: Mapped[int] = mapped_column(Integer, primary_key=True)
     username: Mapped[str] = mapped_column(String(80), unique=True, nullable=False)
     created_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow, nullable=False)
-
     password_hash: Mapped[str] = mapped_column(String(255), nullable=False)
+    role: Mapped[str] = mapped_column(String(20), nullable=False, default="member")
+
+    def is_admin(self) -> bool:
+        return self.role == "admin"
 
     entries: Mapped[List["Entry"]] = relationship(
         back_populates="user", 
