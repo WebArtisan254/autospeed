@@ -7,6 +7,7 @@
             <a href="{{ url_for('admin.users') }}">Admin</a>
         {% endif %}
         <form method="post" action="{{ url_for('auth.logout') }}" style="display: inline;">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
             <button type="submit">Log out</button>
         </form>
     {% else %}

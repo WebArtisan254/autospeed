@@ -3,7 +3,7 @@ from .models import db
 from flask_migrate import Migrate
 import os
 from .auth import login_manager, bp as auth_bp
-
+from .forms import csrf
 migrate = Migrate()
 
 def create_app(test_config=None):
@@ -35,8 +35,9 @@ def create_app(test_config=None):
 
     db.init_app(app)
     migrate.init_app(app, db)
-
     login_manager.init_app(app)
+    csrf.init_app(app) 
+
     login_manager.login_view = "auth.login"
 
     #Register blueprints
