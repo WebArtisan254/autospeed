@@ -1,12 +1,14 @@
 from __future__ import annotations
-from datetime import datetime
+from datetime import datetime, timezone
 from flask_sqlalchemy import SQLAlchemy
 from typing import Optional, List
-from sqlalchemy import String, Integer, DateTime, ForeignKey
+from sqlalchemy import String, Integer, DateTime, ForeignKey, Boolean
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 from sqlalchemy import Table, Column
 from werkzeug.security import generate_password_hash, check_password_hash
 from flask_login import UserMixin
+import hashlib
+import secrets
 
 db = SQLAlchemy()
 
@@ -32,18 +34,26 @@ class User(UserMixin, db.Model):
 
     id: Mapped[int] = mapped_column(Integer, primary_key=True)
     username: Mapped[str] = mapped_column(String(80), unique=True, nullable=False)
-    created_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow, nullable=False)
+    created_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.now(timezone.utc), nullable=False)
     password_hash: Mapped[str] = mapped_column(String(255), nullable=False)
     role: Mapped[str] = mapped_column(String(20), nullable=False, default="member")
+    email: Mapped[str] = mapped_column(String(255), unique=True, nullable=False)
+    email_verified: Mapped[bool] = mapped_column(Boolean, nullable=False, default=False)
 
-    def is_admin(self) -> bool:
-        return self.role == "admin"
+    session_valid_after: Mapped[datetime] = mapped_column(
+        DateTime, 
+        nullable=False, 
+        default=datetime.now(timezone.utc),
+    )
 
     entries: Mapped[List["Entry"]] = relationship(
         back_populates="user", 
         cascade="all, delete-orphan", 
     )
 
+    def is_admin(self) -> bool:
+        return self.role == "admin"
+    
     def set_password(self, password: str) -> None:
         self.password_hash = generate_password_hash(password)
 
@@ -55,7 +65,7 @@ class Entry(db.Model):
 
     id: Mapped[int] = mapped_column(Integer, primary_key=True)
     title: Mapped[str] = mapped_column(String(120), nullable=False)
-    created_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow, nullable=False)
+    created_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.now(timezone.utc), nullable=False)
 
     user_id: Mapped[int] = mapped_column(ForeignKey("users.id"), nullable=False)
     user: Mapped["User"] = relationship(back_populates="entries")
@@ -83,7 +93,27 @@ class Attachment(db.Model):
     original_name: Mapped[str] = mapped_column(String(255), nullable=False)
     content_type: Mapped[str] = mapped_column(String(100), nullable=False)
     size_bytes: Mapped[int] = mapped_column(Integer, nullable=False)
-    created_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow, nullable=False)
+    created_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.now(timezone.utc), nullable=False)
 
     entry_id: Mapped[int] = mapped_column(ForeignKey("entries.id"), nullable=False)
     entry: Mapped["Entry"] = relationship(back_populates="attachments")
+
+class User_Token(db.Model):
+    __tablename__ = "user_tokens"
+
+    id: Mapped[int] = mapped_column(Integer, primary_key=True)
+    user_id: Mapped[int] = mapped_column(ForeignKey("users.id"), nullable=False)
+    purpose: Mapped[str] = mapped_column(String(30), nullable=False)
+    token_hash: Mapped[str] = mapped_column(String(64), unique=True, nullable=False)
+    expires_at: Mapped[datetime] = mapped_column(DateTime, nullable=False)
+    used_at: Mapped[datetime | None] = mapped_column(DateTime, nullable=True)
+
+    user: Mapped["User"] = relationship()
+
+    @staticmethod
+    def hash_token(token: str) -> str:
+        return hashlib.sha256(token.encode("utf-8")).hexdigest()
+    
+    @staticmethod
+    def generate_token() -> str:
+        return secrets.token_urlsafe(32)
