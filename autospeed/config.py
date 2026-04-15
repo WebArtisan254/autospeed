@@ -1,4 +1,5 @@
 import os 
+from dotenv import load_dotenv
 
 class BaseConfig:
     BASE_DIR = os.path.abspath(os.path.dirname(os.path.dirname(__file__)))
@@ -10,6 +11,9 @@ class BaseConfig:
     UPLOAD_FOLDER = os.environ.get("AUTOSPEED_UPLOAD_FOLDER", "uploads")
 
     USE_PROXY_FIX = os.environ.get("AUTOSPEED_USE_PROXY_FIX", "false").lower() == "true"
+
+    GOOGLE_CLIENT_ID = os.environ.get("GOOGLE_CLIENT_ID")
+    GOOGLE_CLIENT_ID_SECRET = os.environ.get("GOOGLE_CLIENT_SECRET")
 
 #Default    
 class DevelopmentConfig(BaseConfig):

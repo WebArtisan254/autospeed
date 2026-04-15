@@ -33,10 +33,11 @@ def create_app(test_config=None):
     app.config["SQLALCHEMY_DATABASE_URI"] = app.config["DATABASE_URL"]
     app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
 
+    #Initializing
     db.init_app(app)
     migrate.init_app(app, db)
     login_manager.init_app(app)
-    csrf.init_app(app) 
+    csrf.init_app(app)
 
     login_manager.login_view = "auth.login"
 
@@ -55,6 +56,13 @@ def create_app(test_config=None):
 
     from .users import bp as users_bp
     app.register_blueprint(users_bp)
+
+    from .security_runtime import register_session_controls
+    register_session_controls(app)
+
+    from .oauth import init_oauth, bp as oauth_bp
+    init_oauth(app)  
+    app.register_blueprint(oauth_bp)
 
     upload_dir = app.config["UPLOAD_FOLDER"]
     os.makedirs(upload_dir, exist_ok=True) 

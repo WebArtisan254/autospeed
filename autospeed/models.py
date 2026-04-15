@@ -2,7 +2,7 @@ from __future__ import annotations
 from datetime import datetime, timezone
 from flask_sqlalchemy import SQLAlchemy
 from typing import Optional, List
-from sqlalchemy import String, Integer, DateTime, ForeignKey, Boolean
+from sqlalchemy import String, Integer, DateTime, ForeignKey, Boolean, UniqueConstraint
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 from sqlalchemy import Table, Column
 from werkzeug.security import generate_password_hash, check_password_hash
@@ -35,7 +35,7 @@ class User(UserMixin, db.Model):
     id: Mapped[int] = mapped_column(Integer, primary_key=True)
     username: Mapped[str] = mapped_column(String(80), unique=True, nullable=False)
     created_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.now(timezone.utc), nullable=False)
-    password_hash: Mapped[str] = mapped_column(String(255), nullable=False)
+    password_hash: Mapped[str | None] = mapped_column(String(255), nullable=True)
     role: Mapped[str] = mapped_column(String(20), nullable=False, default="member")
     email: Mapped[str] = mapped_column(String(255), unique=True, nullable=False)
     email_verified: Mapped[bool] = mapped_column(Boolean, nullable=False, default=False)
@@ -117,3 +117,20 @@ class User_Token(db.Model):
     @staticmethod
     def generate_token() -> str:
         return secrets.token_urlsafe(32)
+    
+class OAuthIdentity(db.Model):
+    __tablename__ = "oauth_identities"
+    __table_args__ = (
+        UniqueConstraint("provider", "provider_user_id", name="uq_provider_user"), 
+    )
+
+    id: Mapped[int] = mapped_column(Integer, primary_key=True)
+
+    provider: Mapped[str] = mapped_column(String(30), nullable=False)
+    provider_user_id: Mapped[str] = mapped_column(String(255), nullable=False)
+
+    email: Mapped[str | None] = mapped_column(String(255), nullable=True)
+    email_verified: Mapped[bool] = mapped_column(Boolean, nullable=False, default=False)
+
+    user_id: Mapped[int] = mapped_column(ForeignKey("users.id"), nullable=False)
+    user: Mapped["User"] = relationship()
