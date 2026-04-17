@@ -1,9 +1,9 @@
 from flask import Flask
-from .models import db 
+from .models import db
 from flask_migrate import Migrate
 import os
-from .auth import login_manager, bp as auth_bp
-from .forms import csrf
+from .auth import init_auth   
+
 migrate = Migrate()
 
 def create_app(test_config=None):
@@ -13,16 +13,14 @@ def create_app(test_config=None):
 
     if env == "production":
         from .config import ProductionConfig as Config
-    
     elif env == "staging":
         from .config import StagingConfig as Config
-    
     else:
         from .config import DevelopmentConfig as Config
-    
+
     app.config.from_object(Config)
 
-    if test_config is None:
+    if test_config is not None:
         app.config.from_mapping(test_config)
     else:
         app.config.from_pyfile("application.cfg", silent=True)
@@ -36,15 +34,10 @@ def create_app(test_config=None):
     #Initializing
     db.init_app(app)
     migrate.init_app(app, db)
-    login_manager.init_app(app)
-    csrf.init_app(app)
 
-    login_manager.login_view = "auth.login"
+    init_auth(app)  # auth owns: csrf, login_manager, oauth, session controls, auth blueprints
 
     #Register blueprints
-    from . import auth
-    app.register_blueprint(auth.bp)
-
     from .errors import register_error_handlers
     register_error_handlers(app)
 
@@ -52,26 +45,19 @@ def create_app(test_config=None):
     app.register_blueprint(entries.bp)
 
     from .admin import bp as admin_bp
-    app.register_blueprint(admin_bp) 
+    app.register_blueprint(admin_bp)
 
     from .users import bp as users_bp
     app.register_blueprint(users_bp)
 
-    from .security_runtime import register_session_controls
-    register_session_controls(app)
-
-    from .oauth import init_oauth, bp as oauth_bp
-    init_oauth(app)  
-    app.register_blueprint(oauth_bp)
-
     upload_dir = app.config["UPLOAD_FOLDER"]
-    os.makedirs(upload_dir, exist_ok=True) 
+    os.makedirs(upload_dir, exist_ok=True)
 
     #Logs at app creation
     app.logger.info("Application created with environment=%s", app.config.get("ENV", "unknown"))
     app.logger.info("Booting app with AUTOSPEED_ENV=%s", os.environ.get("AUTOSPEED_ENV", "development"))
 
-    #Health route for verification of app boot. 
+    #Health route for verification of app boot.
     @app.get("/health")
     def health():
         return {"status": "ok"}
