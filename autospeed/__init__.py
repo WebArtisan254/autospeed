@@ -50,6 +50,9 @@ def create_app(test_config=None):
     from .users import bp as users_bp
     app.register_blueprint(users_bp)
 
+    from .api import bp as api_bp
+    app.register_blueprint(api_bp)
+
     upload_dir = app.config["UPLOAD_FOLDER"]
     os.makedirs(upload_dir, exist_ok=True)
 
