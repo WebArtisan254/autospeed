@@ -8,11 +8,19 @@ from .api_serializers import serialize_entry
 from flask import g
 from .api_auth import load_api_identity
 from .rate_limit import limiter
+from flask_smorest import Blueprint
+from .api_schemas import EntryListResponse, ErrorResponse
 
 bp = Blueprint("api", __name__, url_prefix="/api")
 
+
 #Rate limiter
 limiter.limit("120 per minute; 2000 per hour")(bp)
+
+@bp.get("/entries")
+@bp.response(200, EntryListResponse)
+@bp.response(401, ErrorResponse)
+@bp.response(400, ErrorResponse)
 
 @bp.before_app_request
 def authenticate_api():

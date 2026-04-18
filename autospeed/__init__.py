@@ -5,6 +5,8 @@ import os
 from .auth import init_auth
 from .rate_limit import limiter   
 from .cors import init_cors
+from flask_smorest import Api
+from .api_docs import api_bp, api
 
 migrate = Migrate()
 
