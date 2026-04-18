@@ -2,6 +2,7 @@ from flask import render_template, request, current_app
 from werkzeug.exceptions import HTTPException
 from flask_wtf.csrf import CSRFError
 from .api_responses import fail
+from flask_limiter.errors import RateLimitExceeded
 
 
 def register_error_handlers(app):
@@ -30,3 +31,13 @@ def register_error_handlers(app):
     def handle_csrf_error(e):
         return render_template("errors/400.html", message="Your form expired or was invalid. Please try again."), 400
     
+    @app.errorhandler(RateLimitExceeded)
+    def handle_rate_limit(e):
+        if request.path.startswith("/api/"):
+            return fail(
+                code="rate_limited",
+                message="Too many requests. Please slow down.",
+                status=429,
+                details={"limit": str(e.description)},
+            )
+        return "Too many requests", 429

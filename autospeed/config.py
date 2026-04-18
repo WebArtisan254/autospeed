@@ -15,12 +15,16 @@ class BaseConfig:
     GOOGLE_CLIENT_ID = os.environ.get("GOOGLE_CLIENT_ID")
     GOOGLE_CLIENT_ID_SECRET = os.environ.get("GOOGLE_CLIENT_SECRET")
 
+    CORS_ALLOWED_ORIGINS = []
+
 #Default    
 class DevelopmentConfig(BaseConfig):
     DEBUG = True
     TESTING = False
 
     DATABASE_URL = BaseConfig.DATABASE_URL or f"sqlite:///{BaseConfig.BASE_DIR}/instance/dev.db"
+
+    CORS_ALLOWED_ORIGINS = ["http://localhost:5173"]
 
 class StagingConfig(BaseConfig):
     DEBUG = False
@@ -36,3 +40,5 @@ class ProductionConfig(BaseConfig):
     REMEMBER_COOKIE_SECURE = True
     REMEMBER_COOKIE_HTTPONLY = True
     REMEMBER_COOKIE_SAMESITE = "Lax"
+
+    CORS_ALLOWED_ORIGINS = ["https://autospeed.com"]

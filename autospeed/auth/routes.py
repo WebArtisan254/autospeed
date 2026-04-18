@@ -1,7 +1,7 @@
 from flask import Blueprint, render_template, request, redirect, url_for, flash, current_app
 from flask_login import login_user, logout_user, login_required, current_user
 from sqlalchemy import select
-from ..models import db, User
+from ..models import db, User, ApiToken
 from .session import mark_session_issued
 from .tokens import issue_token, consume_token
 
@@ -40,3 +40,28 @@ def logout():
     logout_user()
     flash("You are now logged out.")
     return redirect(url_for("auth.login"))
+
+@bp.route("/tokens", methods=["GET", "POST"])
+@login_required
+def tokens():
+    if request.method == "POST":
+        name = (request.form.get("name") or "").strip()
+        if not name:
+            flash("Token name is required.")
+            return redirect(url_for("auth.tokens"))
+        
+        raw = ApiToken.generate()
+        tok = ApiToken(
+            user_id=current_user.id,
+            name=name,
+            token_hash=ApiToken.hash(raw),
+        )
+        db.session.add(tok)
+        db.session.commit()
+
+        return render_template("auth/token_created.html", token=raw)
+    
+    tokens = db.session.scalars(
+        select(ApiToken).where(ApiToken.user_id == current_user.id, ApiToken.revoked_at.is_(None))
+    ).all()
+    return render_template("auth/tokens.html", tokens=tokens)

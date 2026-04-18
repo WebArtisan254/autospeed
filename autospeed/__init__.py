@@ -2,7 +2,9 @@ from flask import Flask
 from .models import db
 from flask_migrate import Migrate
 import os
-from .auth import init_auth   
+from .auth import init_auth
+from .rate_limit import limiter   
+from .cors import init_cors
 
 migrate = Migrate()
 
@@ -34,6 +36,8 @@ def create_app(test_config=None):
     #Initializing
     db.init_app(app)
     migrate.init_app(app, db)
+    limiter.init_app(app)
+    init_cors(app)
 
     init_auth(app)  # auth owns: csrf, login_manager, oauth, session controls, auth blueprints
 
