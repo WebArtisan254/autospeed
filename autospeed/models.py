@@ -65,7 +65,8 @@ class Entry(db.Model):
 
     id: Mapped[int] = mapped_column(Integer, primary_key=True)
     title: Mapped[str] = mapped_column(String(120), nullable=False)
-    created_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.now(timezone.utc), nullable=False)
+    created_at: Mapped[datetime] = mapped_column(DateTime, default=lambda: datetime.now(timezone.utc), nullable=False)
+    update_at: Mapped[datetime] = mapped_column(DateTime, default=lambda: datetime.now(timezone.utc), onupdate=lambda: datetime.now(timezone.utc), nullable=False)
 
     user_id: Mapped[int] = mapped_column(ForeignKey("users.id"), nullable=False)
     user: Mapped["User"] = relationship(back_populates="entries")
