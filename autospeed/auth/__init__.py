@@ -4,6 +4,7 @@ from .session import register_session_controls
 from ..forms import csrf
 from .login import login_manager
 from flask import request, jsonify, redirect, url_for
+from ..api_responses import fail
 
 def init_auth(app: Flask) -> None:
     csrf.init_app(app)
@@ -14,7 +15,7 @@ def init_auth(app: Flask) -> None:
     @login_manager.unauthorized_handler
     def unauthorized():
         if request.path.startswith("/api"):
-            return jsonify({"error": "Authentication"}), 401
+            return fail(code="auth_required", message="Authentication required.", status=401)
         return redirect(url_for("auth.login"))
     
     #Initializing
