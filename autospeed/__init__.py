@@ -94,9 +94,6 @@ def create_app(config_object=None, test_config=None):
     from .forms import csrf
     csrf.exempt(api_bp)
 
-    from .web.routes import bp as web_bp
-    app.register_blueprint(web_bp)
-
     from .home import bp as home_bp
     app.register_blueprint(home_bp)
 
