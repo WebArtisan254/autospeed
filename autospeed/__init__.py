@@ -6,7 +6,7 @@ from .auth import init_auth
 from .rate_limit import limiter   
 from .cors import init_cors
 from flask_smorest import Api
-from .api_docs import api_bp, api
+from .api_docs import api
 
 migrate = Migrate()
 
@@ -31,17 +31,27 @@ def create_app(test_config=None):
 
     app.config.from_prefixed_env()
 
-    #Database
+    #Database Configurations
     app.config["SQLALCHEMY_DATABASE_URI"] = app.config["DATABASE_URL"]
     app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
+
+    #Open AI Configurations
+    app.config.update(
+        API_TITLE="AutoSpeed Api",
+        API_VERSION="1.0",
+        OPENAPI_VERSION="3.0.3",
+        OPENAPI_URL_PREFIX="/docs",
+        OPENAPI_SWAGGER_UI_PATH="/swagger",
+        OPENAPI_SWAGGER_UI_URL="https://cdn.jsdelivr.net/npm/swagger-ui-dist/",
+    )
 
     #Initializing
     db.init_app(app)
     migrate.init_app(app, db)
     limiter.init_app(app)
     init_cors(app)
-
-    init_auth(app)  # auth owns: csrf, login_manager, oauth, session controls, auth blueprints
+    api.init_app(app)
+    init_auth(app)  
 
     #Register blueprints
     from .errors import register_error_handlers

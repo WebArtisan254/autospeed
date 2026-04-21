@@ -65,3 +65,4 @@ def tokens():
         select(ApiToken).where(ApiToken.user_id == current_user.id, ApiToken.revoked_at.is_(None))
     ).all()
     return render_template("auth/tokens.html", tokens=tokens)
+

@@ -2,7 +2,7 @@ from __future__ import annotations
 from datetime import datetime, timezone
 from flask_sqlalchemy import SQLAlchemy
 from typing import Optional, List
-from sqlalchemy import String, Integer, DateTime, ForeignKey, Boolean, UniqueConstraint
+from sqlalchemy import String, Integer, DateTime, ForeignKey, Boolean, Text, UniqueConstraint
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 from sqlalchemy import Table, Column
 from werkzeug.security import generate_password_hash, check_password_hash
@@ -157,4 +157,24 @@ class ApiToken(db.Model):
     
     @staticmethod
     def hash(raw: str) -> str:
+        return hashlib.sha256(raw.encode("utf-8")).hexdigest()
+    
+class EmailOutbox(db.Model):
+    __tablename__ = "email_outbox"
+
+    id: Mapped[int] = mapped_column(Integer, primary_key=True)
+    dedupe_key: Mapped[str] = mapped_column(String(64), nullable=False, unique=True)
+    to_email: Mapped[str] = mapped_column(String(255), nullable=False)
+    subject: Mapped[str] = mapped_column(String(255), nullable=False)
+    body: Mapped[str] = mapped_column(Text, nullable=False)
+
+    status: Mapped[str] = mapped_column(String(20), nullable=False, default="pending")
+    attempts: Mapped[int] = mapped_column(Integer, nullable=False, default=0)
+    last_error: Mapped[str | None] = mapped_column(Text, nullable=True)
+    sent_at: Mapped[datetime | None] = mapped_column(DateTime, nullable=True)
+    created_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow, nullable=False)
+
+    @staticmethod
+    def make_dedupe_key(*, kind: str, user_id: int, token_id: int) -> str:
+        raw = f"{kind}:{user_id}:{token_id}"
         return hashlib.sha256(raw.encode("utf-8")).hexdigest()

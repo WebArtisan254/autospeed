@@ -10,6 +10,7 @@ from .api_auth import load_api_identity
 from .rate_limit import limiter
 from flask_smorest import Blueprint
 from .api_schemas import EntryListResponse, ErrorResponse
+from .domain.entries import create_entry_for_user, ValidationError
 
 bp = Blueprint("api", __name__, url_prefix="/api")
 
@@ -31,39 +32,24 @@ def authenticate_api():
         g.api_user = None
 
 @bp.post("/entries")
-@login_required
 def create_entry():
-    payload = request.get_json(silent=True)
-
-    clean, errors = validate_entry_create(payload)
-    if errors:
-        return fail(
-            code="validation_failed",
-            message="Your request body is invalid.",
-            status=400,
-            details=errors,
-        )
-    
     user = g.api_user or (current_user if current_user.is_authenticated else None)
     if user is None:
         return fail(code="auth_required", message="Authentication required.", status=401)
-
-    e = Entry(
-        user_id=user.id,
-        title=clean["title"],
-        content=clean["content"],
-        status=clean["status"],
-    )
-
-    db.session.add(e)
-    try:
-        db.session.commit()
-    except Exception:
-        db.session.rollback()
-        current_app.logger.exception("Failed to create entry")
-        return fail(code="db_error", message="Could not create entry.", status=500)
-    
-    return ok(data=serialize_entry(e), status=201)
+    payload = request.get_json(silent=True) or {}
+    try: 
+        entry = create_entry_for_user(
+            user_id=user.id,
+            data=payload,
+        )
+    except ValidationError as e:
+        return fail(
+            code="validation_error",
+            message=e.message,
+            status=400,
+            details={"field": e.field},
+        )
+    return ok(data=serialize_entry(entry), status=201)    
 
 @bp.get("/entries")
 @login_required

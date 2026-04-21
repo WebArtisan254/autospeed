@@ -26,6 +26,12 @@ class DevelopmentConfig(BaseConfig):
 
     CORS_ALLOWED_ORIGINS = ["http://localhost:5173"]
 
+    SMTP_HOST = "localhost"
+    SMTP_PORT = 1025
+    SMTP_USERNAME = ""
+    SMTP_PASSWORD = ""
+    SMTP_SENDER = "dev@example.test"
+
 class StagingConfig(BaseConfig):
     DEBUG = False
     TESTING = False
@@ -42,3 +48,9 @@ class ProductionConfig(BaseConfig):
     REMEMBER_COOKIE_SAMESITE = "Lax"
 
     CORS_ALLOWED_ORIGINS = ["https://autospeed.com"]
+
+    SMTP_HOST = "smtp.yourprovider.com"
+    SMTP_PORT = 587
+    SMTP_USERNAME = "apikey"
+    #SMTP_PASSWORD = os.environ["SMTP_PASSWORD"]
+    SMTP_SENDER = "no-reply@autospeed.com"
