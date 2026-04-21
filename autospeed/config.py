@@ -54,3 +54,7 @@ class ProductionConfig(BaseConfig):
     SMTP_USERNAME = "apikey"
     #SMTP_PASSWORD = os.environ["SMTP_PASSWORD"]
     SMTP_SENDER = "no-reply@autospeed.com"
+
+    REQUIRE_HTTPS = True
+
+    MAX_CONTENT_LENGTH = 10 * 1024 *  1024

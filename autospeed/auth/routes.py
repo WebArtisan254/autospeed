@@ -6,8 +6,37 @@ from ..jobs import get_queue
 from ..models import EmailOutbox, db, User, ApiToken
 from .session import mark_session_issued
 from .tokens import issue_token, consume_token
+from ..domain.users import register_user, ValidationError as UserValidationError
+from rq import Retry
 
 bp = Blueprint("auth", __name__, url_prefix="/auth")
+
+@bp.route("/register", methods=["GET", "POST"])
+def register():
+    if request.method == "GET":
+        return render_template("auth/register.html", username="", email="", errors={})
+
+    data = {
+        "username": request.form.get("username", ""),
+        "email": request.form.get("email", ""),
+        "password": request.form.get("password", ""),
+        "confirm": request.form.get("confirm", ""),
+    }
+
+    try:
+        user = register_user(data=data)
+    except UserValidationError as e:
+        return render_template(
+            "auth/register.html",
+            username=data["username"],
+            email=data["email"],
+            errors={e.field: e.message},
+        ), 400
+
+    login_user(user)
+    mark_session_issued()
+    flash("Account created. Welcome to my First Web App Project!!")
+    return redirect(url_for("entries.index"))
 
 @bp.route("/login", methods=["GET", "POST"])
 def login():
@@ -114,7 +143,7 @@ def reset_request():
             get_queue().enqueue(
                 "autospeed.tasks.email_tasks.deliver_outbox_email",
                 outbox_id=msg.id,
-                retry=3,
+                retry=Retry(max=3),
             )
 
     flash("If an account exists for that email, a reset link has been sent.")
@@ -156,4 +185,22 @@ def reset_password(token: str):
     db.session.commit()
     flash("Password updated. Please log in.")
     return redirect(url_for("auth.login"))
+
+@bp.post("/tokens/<int:token_id>/revoke")
+@login_required
+def revoke_token(token_id):
+    tok = db.session.get(ApiToken, token_id)
+    if tok is None or tok.user_id != current_user.id:
+        flash("Token not found.")
+        return redirect(url_for("auth.tokens"))
+    
+    if tok.revoked_at is not None:
+        flash("Token already revoked.")
+        return redirect(url_for("auth.tokens"))
+
+    tok.revoked_at = datetime.now(timezone.utc)
+    db.session.commit()
+    flash("Token revoked.")
+    return redirect(url_for("auth.tokens"))
+
 

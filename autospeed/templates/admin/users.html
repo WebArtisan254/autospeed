@@ -1,25 +1,40 @@
 {% extends "base.html" %}
 
-{% block title %}User Management{% endblock %}
+{% block title %}Admin — Users{% endblock %}
 
 {% block content %}
-    <h1>User Management</h1>
+    <h1>Users</h1>
 
-    <ul>
-        {% for u in users %}
-            <li>
-                <strong>{{ u.username }}</strong>
-                <span>({{ u.role }})</span>
-
-                <form method="post" action="{{ url_for('admin.set_role', user_id=u.id) }}" style="display: inline;">
-                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
-                    <select name="role">
-                        <option value="member" {% if u.role == "member" %}selected{% endif %}>member</option>
-                        <option value="admin" {% if u.role == "admin" %}selected{% endif %}>admin</option>
-                    </select>
-                    <button type="submit">Update</button>
-                </form>
-            </li>
-        {% endfor %}
-    </ul>
+    <table>
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Username</th>
+                <th>Email</th>
+                <th>Role</th>
+                <th>Joined</th>
+                <th></th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for user in users %}
+            <tr>
+                <td>{{ user.id }}</td>
+                <td>{{ user.username }}</td>
+                <td>{{ user.email }}</td>
+                <td>{{ user.role }}</td>
+                <td>{{ user.created_at.strftime('%Y-%m-%d') }}</td>
+                <td>
+                    <a href="{{ url_for('admin.edit_user', user_id=user.id) }}">Edit</a>
+                    {% if user.id != current_user.id %}
+                    <form method="post" action="{{ url_for('admin.delete_user_route', user_id=user.id) }}" style="display: inline;">
+                        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                        <button type="submit" onclick="return confirm('Delete user {{ user.username }}?')">Delete</button>
+                    </form>
+                    {% endif %}
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
 {% endblock %}

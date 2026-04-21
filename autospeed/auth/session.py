@@ -10,15 +10,20 @@ def register_session_controls(app):
     def enforce_session_validity():
         if not current_user.is_authenticated:
             return
-        
+
         issued_at = session.get("auth_issued_at")
         if issued_at is None:
             logout_user()
             session.clear()
             return
-        
-        issued_dt = datetime.utcfromtimestamp(float(issued_at))
-        if issued_dt < current_user.session_valid_after:
+
+        issued_dt = datetime.fromtimestamp(float(issued_at), tz=timezone.utc)
+
+        valid_after = current_user.session_valid_after
+        if valid_after.tzinfo is None:
+            valid_after = valid_after.replace(tzinfo=timezone.utc)
+
+        if issued_dt < valid_after:
             logout_user()
             session.clear()
 

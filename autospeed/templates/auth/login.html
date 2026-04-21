@@ -1,9 +1,9 @@
 {% extends "base.html" %}
 
-{% block title %}Log in{% endblock %}
+{% block title %}Log In{% endblock %}
 
 {% block content %}
-    <h1>Log in</h1>
+    <h1>Log In</h1>
 
     {% if errors.get("__all__") %}
         <p>{{ errors["__all__"] }}</p>
@@ -11,9 +11,9 @@
 
     <form method="post">
         <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
-        
+
         <label>
-            Username 
+            Username
             <input type="text" name="username" value="{{ username }}">
         </label>
         {% if errors.get("username") %}
@@ -21,7 +21,7 @@
         {% endif %}
 
         <label>
-            Password 
+            Password
             <input type="password" name="password">
         </label>
         {% if errors.get("password") %}
@@ -30,6 +30,9 @@
 
         <button type="submit">Log in</button>
     </form>
+
+    <p><a href="{{ url_for('auth.reset_request') }}">Forgot your password?</a></p>
+    <p>Don't have an account? <a href="{{ url_for('auth.register') }}">Register</a></p>
     <!--<p>
         <a href="{{ url_for('oauth.google_login') }}">Continue with Google</a>
     </p>--->

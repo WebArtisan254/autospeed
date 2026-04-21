@@ -1,0 +1,43 @@
+{% extends "base.html" %}
+
+{% block title %}Edit: {{ entry.title }}{% endblock %}
+
+{% block content %}
+    <h1>Edit Entry</h1>
+
+    {% if errors.get("__all__") %}
+        <p>{{ errors["__all__"] }}</p>
+    {% endif %}
+
+    <form method="post">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+
+        <label>
+            Title
+            <input type="text" name="title" value="{{ title }}">
+        </label>
+        {% if errors.get("title") %}
+            <p>{{ errors["title"] }}</p>
+        {% endif %}
+
+        <label>
+            Content
+            <textarea name="content" rows="10">{{ content }}</textarea>
+        </label>
+        {% if errors.get("content") %}
+            <p>{{ errors["content"] }}</p>
+        {% endif %}
+
+        <label>
+            Status
+            <select name="status">
+                <option value="draft" {{ "selected" if status == "draft" }}>Draft</option>
+                <option value="published" {{ "selected" if status == "published" }}>Published</option>
+            </select>
+        </label>
+
+        <button type="submit">Save</button>
+    </form>
+
+    <a href="{{ url_for('entries.detail', entry_id=entry.id) }}">Cancel</a>
+{% endblock %}

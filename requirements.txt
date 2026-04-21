@@ -1,5 +1,8 @@
+aiosmtpd==1.4.6
 alembic==1.18.4
 apispec==6.10.0
+atpublic==7.0.0
+attrs==26.1.0
 Authlib==1.6.10
 blinker==1.9.0
 Bootstrap-Flask==2.5.0
@@ -29,6 +32,7 @@ MarkupSafe==3.0.3
 marshmallow==4.3.0
 ordered-set==4.1.0
 packaging==26.0
+psycopg2-binary==2.9.12
 pycparser==3.0
 python-dateutil==2.9.0.post0
 python-dotenv==1.2.2

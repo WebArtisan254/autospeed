@@ -6,25 +6,9 @@ from ..jobs import get_queue
 from ..models import db, ImportJob, EmailOutbox
 from ..domain.entries import create_entry_for_user, ValidationError
 from ..storage import save_upload
+from rq import Retry
 
 bp = Blueprint("web", __name__)
-
-@bp.route("/entries/new", methods=["GET", "POST"])
-@login_required
-def new_entry():
-    if request.method == "POST":
-        try:
-            create_entry_for_user(
-                user_id=current_user.id,
-                data=request.form,
-            )
-            flash("Entry created.")
-            return redirect(url_for("web.entries"))
-        except ValidationError as e:
-            flash(e.message)
-
-    return render_template("entries/new.html")
-
 
 @bp.route("/imports", methods=["GET", "POST"])
 @login_required
@@ -49,7 +33,7 @@ def imports():
         get_queue().enqueue(
             "autospeed.tasks.import_tasks.process_import_v1",
             payload={"v": 1, "job_id": job.id},
-            retry=1,
+            retry=Retry(max=1),
         )
 
         return redirect(url_for("web.import_status", job_id=job.id))
@@ -110,7 +94,7 @@ def retry_import(job_id):
     get_queue().enqueue(
         "autospeed.tasks.import_tasks.process_import_v1",
         payload={"v": 1, "job_id": job.id},
-        retry=1,
+        retry=Retry(max=1),
     )
 
     flash("Import retry started.")

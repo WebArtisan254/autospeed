@@ -1,8 +1,27 @@
-<form method="post">
-    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
-    <label>
-        Email
-        <input type="email" name="email" value="{{ email }}">
-    </label>
-    <button type="submit">Send reset link</button>
-</form>
+{% extends "base.html" %}
+
+{% block title %}Reset Password{% endblock %}
+
+{% block content %}
+    <h1>Reset Password</h1>
+
+    {% if errors.get("__all__") %}
+        <p>{{ errors["__all__"] }}</p>
+    {% endif %}
+
+    <form method="post">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+
+        <label>
+            Email
+            <input type="email" name="email" value="{{ email }}">
+        </label>
+        {% if errors.get("email") %}
+            <p>{{ errors["email"] }}</p>
+        {% endif %}
+
+        <button type="submit">Send reset link</button>
+    </form>
+
+    <p><a href="{{ url_for('auth.login') }}">Back to login</a></p>
+{% endblock %}

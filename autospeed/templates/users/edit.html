@@ -1,0 +1,31 @@
+{% extends "base.html" %}
+
+{% block title %}Edit Profile{% endblock %}
+
+{% block content %}
+    <h1>Edit Profile</h1>
+
+    <form method="post">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+
+        <label>
+            Username
+            <input type="text" name="username" value="{{ username }}">
+        </label>
+        {% if errors.get("username") %}
+            <p>{{ errors["username"] }}</p>
+        {% endif %}
+
+        <label>
+            Email
+            <input type="email" name="email" value="{{ email }}">
+        </label>
+        {% if errors.get("email") %}
+            <p>{{ errors["email"] }}</p>
+        {% endif %}
+
+        <button type="submit">Save</button>
+    </form>
+
+    <a href="{{ url_for('users.me') }}">Cancel</a>
+{% endblock %}

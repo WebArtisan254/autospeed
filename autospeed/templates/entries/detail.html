@@ -1,7 +1,19 @@
 {% extends "base.html" %}
 
-{% block title %}Entry {{ entry_id }}{% endblock %}
+{% block title %}{{ entry.title }}{% endblock %}
 
 {% block content %}
-    <h1>Entry {{ entry_id }}</h1>
+    <h1>{{ entry.title }}</h1>
+    <p><small>{{ entry.status }} — {{ entry.created_at.strftime('%Y-%m-%d %H:%M') }}</small></p>
+
+    <div>{{ entry.content }}</div>
+
+    <a href="{{ url_for('entries.edit', entry_id=entry.id) }}">Edit</a>
+
+    <form method="post" action="{{ url_for('entries.delete', entry_id=entry.id) }}" style="display: inline;">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+        <button type="submit" onclick="return confirm('Delete this entry?')">Delete</button>
+    </form>
+
+    <a href="{{ url_for('entries.index') }}">Back to entries</a>
 {% endblock %}

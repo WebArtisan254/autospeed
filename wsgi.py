@@ -20,5 +20,15 @@ dictConfig({
 })
 
 from autospeed import create_app
+import os
 
-app = create_app
+env = os.getenv("ENV_NAME", "prod")
+
+config_map = {
+    "prod": "autospeed.config.ProductionConfig",
+    "staging": "autospeed.config.StagingConfig",
+    "dev": "autospeed.config.BaseConfig",
+    "test": "autospeed.config.TestConfig",
+}
+
+app = create_app(config_map.get(env, "autospeed.config.ProductionConfig"))

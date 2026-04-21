@@ -19,7 +19,7 @@ def register_error_handlers(app):
     def handle_http_exception(e: HTTPException):
         if is_api_request():
             return api_error(
-                code=e.name.lower().replace("", "_"),
+                code=e.name.lower().replace(" ", "_"),
                 message=e.description,
                 status=e.code or 500,
             )

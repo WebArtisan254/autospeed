@@ -1,0 +1,16 @@
+venv/
+__pycache__/
+*.pyc
+.git/
+instance/
+uploads/
+db/
+.env
+*.sqlite
+*.db
+cookies.txt
+flask
+migrate
+db
+FLASK_APP=autospeed
+Initial migration

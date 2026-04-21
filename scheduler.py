@@ -1,5 +1,6 @@
-import time 
+import time
 from datetime import datetime, timedelta
+from rq import Retry
 from autospeed import create_app
 from autospeed.jobs import get_queue
 
@@ -17,11 +18,11 @@ def main():
             with app.app_context():
                 q.enqueue(
                     "autospeed.tasks.maintenance.cleanup_expired_tokens_and_stale_email",
-                    retry=1,
+                    retry=Retry(max=1),
                 )
                 next_run = now + timedelta(seconds=INTERVAL)
 
-            time.sleep(10)
+        time.sleep(10)
 
 if __name__ == "__main__":
     main()

@@ -1,6 +1,6 @@
 from flask import Blueprint, current_app, redirect, url_for, session, request, flash
 from flask_login import login_user
-from datetime import datetime
+from datetime import datetime, timezone
 from sqlalchemy import select
 from .models import User_Token, db, User, OAuthIdentity
 from .db_access import create_user
@@ -28,12 +28,12 @@ def google_login():
 
 @bp.get("/google/callback")
 def google_callback():
-    try: 
+    try:
         token = oauth.google.authorize_access_token()
     except OAuthError:
         flash("OAuth login failed. Please try again.")
         return redirect(url_for("auth.login"))
-    
+
     userinfo = oauth.google.parse_id_token(token)
 
     provider = "google"
@@ -44,7 +44,7 @@ def google_callback():
     if not provider_user_id:
         flash("OAuth login failed. Please try again.")
         return redirect(url_for("auth.login"))
-    
+
     identity = db.session.scalars(
         select(OAuthIdentity)
         .where(OAuthIdentity.provider == provider)
@@ -52,35 +52,36 @@ def google_callback():
     ).first()
 
     if identity:
+        # Existing OAuth identity — just log them in
         user = db.session.get(User, identity.user_id)
         if user is None:
             flash("OAuth login failed. Please try again.")
             return redirect(url_for("auth.login"))
-        else:
-            user = None
-            if email:
-                user = db.session.scalars(select(User).where(User.email == email)).first()
+    else:
+        # New OAuth identity — find or create user
+        user = None
+        if email:
+            user = db.session.scalars(select(User).where(User.email == email)).first()
 
-            if user is None:
-                username = (userinfo.get("name") or "user").strip()[:30].replace("","_").lower()
-                fallback_username = f"{username}_{provider_user_id[-6:]}"
-                user = create_user(username=fallback_username, password=User_Token.generate_token())
-                user.email = email or f"{provider_user_id}@{provider}.local"
-                user.email_verified = bool(email_verified and email)
-
-                db.session.commit()
-            
-            identity = OAuthIdentity(
-                provider=provider,
-                provider_user_id=provider_user_id,
-                email=email,
-                email_verified=email_verified,
-                user_id=user.id
-            )
-            db.session.add(identity)
+        if user is None:
+            username = (userinfo.get("name") or "user").strip()[:30].replace(" ", "_").lower()
+            fallback_username = f"{username}_{provider_user_id[-6:]}"
+            user = create_user(username=fallback_username, password=User_Token.generate_token())
+            user.email = email or f"{provider_user_id}@{provider}.local"
+            user.email_verified = bool(email_verified and email)
             db.session.commit()
 
-        login_user(user)
-        session["auth_issued_at"] = datetime.utcnow().timestamp()
-        flash("You are now logged in.")
-        return redirect(url_for("entries.index"))
+        identity = OAuthIdentity(
+            provider=provider,
+            provider_user_id=provider_user_id,
+            email=email,
+            email_verified=email_verified,
+            user_id=user.id,
+        )
+        db.session.add(identity)
+        db.session.commit()
+
+    login_user(user)
+    session["auth_issued_at"] = datetime.now(timezone.utc).timestamp()
+    flash("You are now logged in.")
+    return redirect(url_for("entries.index"))

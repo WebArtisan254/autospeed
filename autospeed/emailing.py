@@ -15,9 +15,9 @@ def send_email(*, to_email: str, subject: str, body: str) -> None:
     password = cfg.get("SMTP_PASSWORD")
     sender = cfg.get("SMTP_SENDER")
 
-    if not all([host, username, password, sender]):
+    if not host or not sender:
         raise EmailDeliveryError("SMTP is not configured.")
-    
+
     msg = EmailMessage()
     msg["From"] = sender
     msg["To"] = to_email
@@ -26,8 +26,9 @@ def send_email(*, to_email: str, subject: str, body: str) -> None:
 
     try:
         with smtplib.SMTP(host, port, timeout=10) as smtp:
-            smtp.starttls()
-            smtp.login(username, password)
+            if username and password:
+                smtp.starttls()
+                smtp.login(username, password)
             smtp.send_message(msg)
     except Exception as e:
         raise EmailDeliveryError(str(e)) from e

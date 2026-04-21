@@ -6,7 +6,7 @@ from .api_responses import ok, fail
 from .api_serializers import serialize_entry
 from .api_auth import load_api_identity
 from .rate_limit import limiter
-from .domain.entries import create_entry_for_user, ValidationError
+from .domain.entries import create_entry_for_user, ValidationError, update_entry_for_user, delete_entry_for_user, NotFoundError, ForbiddenError
 
 bp = Blueprint("api", __name__, url_prefix="/api")
 
@@ -107,3 +107,41 @@ def list_entries():
     }
 
     return ok(data=data, meta=meta)
+
+
+@bp.put("/entries/<int:entry_id>")
+def update_entry(entry_id):
+    user = _get_user()
+    if user is None:
+        return fail(code="auth_required", message="Authentication required.", status=401)
+
+    payload = request.get_json(silent=True) or {}
+    try:
+        entry = update_entry_for_user(user_id=user.id, entry_id=entry_id, data=payload)
+    except NotFoundError:
+        return fail(code="not_found", message="Entry not found.", status=404)
+    except ForbiddenError:
+        return fail(code="forbidden", message="You do not own this entry.", status=403)
+    except ValidationError as e:
+        return fail(
+            code="validation_error",
+            message=e.message,
+            status=400,
+            details={"field": e.field},
+        )
+    return ok(data=serialize_entry(entry))
+
+@bp.delete("/entries/<int:entry_id>")
+def delete_entry(entry_id):
+    user = _get_user()
+    if user is None:
+        return fail(code="auth_required", message="Authentication required.", status=401)
+
+    try:
+        delete_entry_for_user(user_id=user.id, entry_id=entry_id)
+    except NotFoundError:
+        return fail(code="not_found", message="Entry not found.", status=404)
+    except ForbiddenError:
+        return fail(code="forbidden", message="You do not own this entry.", status=403)
+
+    return ok(data={"deleted": entry_id})

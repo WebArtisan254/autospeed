@@ -34,7 +34,7 @@ class User(UserMixin, db.Model):
 
     id: Mapped[int] = mapped_column(Integer, primary_key=True)
     username: Mapped[str] = mapped_column(String(80), unique=True, nullable=False)
-    created_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.now(timezone.utc), nullable=False)
+    created_at: Mapped[datetime] = mapped_column(DateTime, default=lambda: datetime.now(timezone.utc), nullable=False)
     password_hash: Mapped[str | None] = mapped_column(String(255), nullable=True)
     role: Mapped[str] = mapped_column(String(20), nullable=False, default="member")
     email: Mapped[str] = mapped_column(String(255), unique=True, nullable=False)
@@ -43,7 +43,7 @@ class User(UserMixin, db.Model):
     session_valid_after: Mapped[datetime] = mapped_column(
         DateTime, 
         nullable=False, 
-        default=datetime.now(timezone.utc),
+        default=lambda: datetime.now(timezone.utc),
     )
 
     entries: Mapped[List["Entry"]] = relationship(
@@ -96,7 +96,7 @@ class Attachment(db.Model):
     original_name: Mapped[str] = mapped_column(String(255), nullable=False)
     content_type: Mapped[str] = mapped_column(String(100), nullable=False)
     size_bytes: Mapped[int] = mapped_column(Integer, nullable=False)
-    created_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.now(timezone.utc), nullable=False)
+    created_at: Mapped[datetime] = mapped_column(DateTime, default=lambda: datetime.now(timezone.utc), nullable=False)
 
     entry_id: Mapped[int] = mapped_column(ForeignKey("entries.id"), nullable=False)
     entry: Mapped["Entry"] = relationship(back_populates="attachments")
@@ -195,5 +195,3 @@ class ImportJob(db.Model):
     user: Mapped["User"] = relationship()
     storage_key: Mapped[str] = mapped_column(String(512), nullable=False)
 
-"""class PasswordResetToken(db.Model):
-    outbox_id: Mapped[int | None] = mapped_column(ForeignKey("email_outbox.id"), nullable=True)"""

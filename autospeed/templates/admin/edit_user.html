@@ -1,0 +1,42 @@
+{% extends "base.html" %}
+
+{% block title %}Edit User: {{ user.username }}{% endblock %}
+
+{% block content %}
+    <h1>Edit User: {{ user.username }}</h1>
+
+    <form method="post">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+
+        <label>
+            Username
+            <input type="text" name="username" value="{{ username }}">
+        </label>
+        {% if errors.get("username") %}
+            <p>{{ errors["username"] }}</p>
+        {% endif %}
+
+        <label>
+            Email
+            <input type="email" name="email" value="{{ email }}">
+        </label>
+        {% if errors.get("email") %}
+            <p>{{ errors["email"] }}</p>
+        {% endif %}
+
+        <label>
+            Role
+            <select name="role">
+                <option value="member" {{ "selected" if role == "member" }}>Member</option>
+                <option value="admin" {{ "selected" if role == "admin" }}>Admin</option>
+            </select>
+        </label>
+        {% if errors.get("role") %}
+            <p>{{ errors["role"] }}</p>
+        {% endif %}
+
+        <button type="submit">Save</button>
+    </form>
+
+    <a href="{{ url_for('admin.users') }}">Cancel</a>
+{% endblock %}

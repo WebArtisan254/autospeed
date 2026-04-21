@@ -49,7 +49,6 @@ def create_entry(*, user_id: int, title: str, content: str = "",
 
     return entry
 
-
 def get_entry(entry_id: int) -> Entry | None:
     return db.session.get(Entry, entry_id)
 
@@ -101,15 +100,19 @@ def consume_user_token(*, raw_token: str, purpose: str) -> User_Token | None:
 
     if tok is None:
         return None
-    
+
     now = datetime.now(timezone.utc)
 
     if tok.used_at is not None:
         return None
-    
-    if tok.expires_at < now:
+
+    expires_at = tok.expires_at
+    if expires_at.tzinfo is None:
+        expires_at = expires_at.replace(tzinfo=timezone.utc)
+
+    if expires_at < now:
         return None
-    
+
     tok.used_at = now
     db.session.commit()
     return tok

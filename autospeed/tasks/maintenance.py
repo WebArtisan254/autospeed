@@ -1,13 +1,13 @@
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 from sqlalchemy import delete, select
 from flask import current_app
-from ..models import db, PasswordResetToken, EmailOutbox
+from ..models import db, User_Token, EmailOutbox
 
 def cleanup_expired_tokens_and_stale_email() -> None:
-    now = datetime.utcnow()
+    now = datetime.now(timezone.utc)
 
     expired = db.session.execute(
-        delete(PasswordResetToken).where(PasswordResetToken.expires_at < now)
+        delete(User_Token).where(User_Token.expires_at < now)
     ).rowcount
 
     stale_cutoff = now - timedelta(days=2)
@@ -26,10 +26,10 @@ def cleanup_expired_tokens_and_stale_email() -> None:
             msg.last_error,
         )
 
-        db.session.commit()
+    db.session.commit()
 
-        current_app.logger.info(
-            "Maintenance run: removed %s expired tokens, found %s stale email records",
-            expired,
-            len(stale),
-        )
+    current_app.logger.info(
+        "Maintenance run: removed %s expired tokens, found %s stale email records",
+        expired,
+        len(stale),
+    )

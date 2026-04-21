@@ -1,4 +1,4 @@
-from flask import Flask
+from flask import Flask, request, redirect
 from .models import db
 from flask_migrate import Migrate
 import os
@@ -7,22 +7,27 @@ from .rate_limit import limiter
 from .cors import init_cors
 from flask_smorest import Api
 from .api_docs import api
+from .logging import configure_logging
 
 migrate = Migrate()
 
-def create_app(test_config=None):
-    app = Flask(__name__, instance_relative_config=True)
+def create_app(config_object=None, test_config=None):
+    app = Flask(__name__)
+    configure_logging(app)
 
-    env = os.environ.get("AUTOSPEED_ENV", "development").lower()
-
-    if env == "production":
-        from .config import ProductionConfig as Config
-    elif env == "staging":
-        from .config import StagingConfig as Config
+    if config_object:
+        app.config.from_object(config_object)
     else:
-        from .config import DevelopmentConfig as Config
+        env = os.environ.get("AUTOSPEED_ENV", "development").lower()
 
-    app.config.from_object(Config)
+        if env == "production":
+            from .config import ProductionConfig as Config
+        elif env == "staging":
+            from .config import StagingConfig as Config
+        else:
+            from .config import DevelopmentConfig as Config
+
+        app.config.from_object(Config)
 
     if test_config is not None:
         app.config.from_mapping(test_config)
@@ -31,11 +36,28 @@ def create_app(test_config=None):
 
     app.config.from_prefixed_env()
 
-    #Database Configurations
+    # HTTPS redirect for production
+    if app.config.get("REQUIRE_HTTPS"):
+        @app.before_request
+        def _redirect_http():
+            if request.headers.get("X-Forwarded-Proto", "http") != "https":
+                url = request.url.replace("http://", "https://", 1)
+                return redirect(url, code=301)
+
+    # Security headers
+    @app.after_request
+    def _set_security_headers(response):
+        response.headers["X-Content-Type-Options"] = "nosniff"
+        response.headers["X-Frame-Options"] = "DENY"
+        response.headers["Referrer-Policy"] = "strict-origin-when-cross-origin"
+        response.headers["Content-Security-Policy"] = "default-src 'self'"
+        return response
+
+    # Database Configurations
     app.config["SQLALCHEMY_DATABASE_URI"] = app.config["DATABASE_URL"]
     app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
 
-    #Open AI Configurations
+    # OpenAPI Configurations
     app.config.update(
         API_TITLE="AutoSpeed Api",
         API_VERSION="1.0",
@@ -45,15 +67,15 @@ def create_app(test_config=None):
         OPENAPI_SWAGGER_UI_URL="https://cdn.jsdelivr.net/npm/swagger-ui-dist/",
     )
 
-    #Initializing
+    # Initializing
     db.init_app(app)
     migrate.init_app(app, db)
     limiter.init_app(app)
     init_cors(app)
     api.init_app(app)
-    init_auth(app)  
+    init_auth(app)
 
-    #Register blueprints
+    # Register blueprints
     from .errors import register_error_handlers
     register_error_handlers(app)
 
@@ -72,14 +94,20 @@ def create_app(test_config=None):
     from .forms import csrf
     csrf.exempt(api_bp)
 
+    from .web.routes import bp as web_bp
+    app.register_blueprint(web_bp)
+
+    from .home import bp as home_bp
+    app.register_blueprint(home_bp)
+
     upload_dir = app.config["UPLOAD_FOLDER"]
     os.makedirs(upload_dir, exist_ok=True)
 
-    #Logs at app creation
+    # Logs at app creation
     app.logger.info("Application created with environment=%s", app.config.get("ENV", "unknown"))
     app.logger.info("Booting app with AUTOSPEED_ENV=%s", os.environ.get("AUTOSPEED_ENV", "development"))
 
-    #Health route for verification of app boot.
+    # Health route for verification of app boot
     @app.get("/health")
     def health():
         return {"status": "ok"}

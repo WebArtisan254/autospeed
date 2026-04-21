@@ -1,8 +1,16 @@
 from flask import Blueprint, render_template, request, make_response, current_app, flash, redirect, url_for
 import os
+from .db_access import create_entry, list_entries, get_entry
 from werkzeug.utils import secure_filename
-from .db_access import create_entry, list_entries
 from flask_login import current_user, login_required
+from .domain.entries import (
+    create_entry_for_user,
+    update_entry_for_user,
+    delete_entry_for_user,
+    NotFoundError,
+    ForbiddenError,
+    ValidationError,
+)
 
 bp = Blueprint("entries", __name__, url_prefix="/entries")
 
@@ -128,5 +136,69 @@ def create():
 
 
 @bp.get("/<int:entry_id>")
+@login_required
 def detail(entry_id):
-    return render_template("entries/detail.html", entry_id=entry_id)
+    entry = get_entry(entry_id)
+    if entry is None:
+        flash("Entry not found.")
+        return redirect(url_for("entries.index"))
+    if entry.user_id != current_user.id:
+        flash("You do not own this entry.")
+        return redirect(url_for("entries.index"))
+
+    return render_template("entries/detail.html", entry=entry)
+
+
+@bp.route("/<int:entry_id>/edit", methods=["GET", "POST"])
+@login_required
+def edit(entry_id):
+    entry = get_entry(entry_id)
+    if entry is None:
+        flash("Entry not found.")
+        return redirect(url_for("entries.index"))
+    if entry.user_id != current_user.id:
+        flash("You do not own this entry.")
+        return redirect(url_for("entries.index"))
+
+    if request.method == "GET":
+        return render_template(
+            "entries/edit.html",
+            entry=entry,
+            title=entry.title,
+            content=entry.content,
+            status=entry.status,
+            errors={},
+        )
+
+    data = {
+        "title": request.form.get("title", ""),
+        "content": request.form.get("content", ""),
+        "status": request.form.get("status", entry.status),
+    }
+
+    try:
+        update_entry_for_user(user_id=current_user.id, entry_id=entry_id, data=data)
+    except ValidationError as e:
+        return render_template(
+            "entries/edit.html",
+            entry=entry,
+            title=data["title"],
+            content=data["content"],
+            status=data["status"],
+            errors={e.field: e.message},
+        ), 400
+
+    flash("Entry updated.")
+    return redirect(url_for("entries.detail", entry_id=entry_id))
+
+@bp.post("/<int:entry_id>/delete")
+@login_required
+def delete(entry_id):
+    try:
+        delete_entry_for_user(user_id=current_user.id, entry_id=entry_id)
+    except (NotFoundError, ForbiddenError):
+        flash("Could not delete entry.")
+        return redirect(url_for("entries.index"))
+
+    flash("Entry deleted.")
+    return redirect(url_for("entries.index"))
