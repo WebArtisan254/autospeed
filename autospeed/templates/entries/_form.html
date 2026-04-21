@@ -1,8 +1,15 @@
 <label>
-    Title 
+    Title
     <input type="text" name="title" value="{{ title }}">
 </label>
-
 {% if errors.get("title") %}
     <p>{{ errors["title"] }}</p>
+{% endif %}
+
+<label>
+    Content
+    <textarea name="content" rows="10">{{ content }}</textarea>
+</label>
+{% if errors.get("content") %}
+    <p>{{ errors["content"] }}</p>
 {% endif %}

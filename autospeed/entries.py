@@ -68,34 +68,34 @@ def index():
 
 def _validate_entry_form(form, files):
     title = (form.get("title") or "").strip()
+    content = (form.get("content") or "").strip()
 
     errors = {}
 
     if not title:
         errors["title"] = "Title is required."
-
     if title and len(title) > 120:
         errors["title"] = "Title must be 120 characters or fewer."
 
     attachment = files.get("attachment")
-
     if attachment and attachment.filename:
         if not _allowed_file(attachment.filename):
             errors["attachment"] = "Unsupported file type."
 
-    return title, attachment, errors
+    return title, content, attachment, errors
+
 
 @bp.route("/new", methods=["GET", "POST"])
 @login_required
 def create():
     if request.method == "GET":
-        return render_template("entries/new.html", title="", errors={})
-    
-    title, upload, errors = _validate_entry_form(request.form, request.files)
+        return render_template("entries/new.html", title="", content="", errors={})
+
+    title, content, upload, errors = _validate_entry_form(request.form, request.files)
 
     if errors:
-        return render_template("entries/new.html", title=title, errors=errors), 400
-    
+        return render_template("entries/new.html", title=title, content=content, errors=errors), 400
+
     safe_name = None
     original_name = None
     file_path = None
@@ -108,27 +108,24 @@ def create():
     try:
         if file_path:
             upload.save(file_path)
-        
+
         create_entry(
-            user_id = current_user.id,
-            title=title, 
+            user_id=current_user.id,
+            title=title,
+            content=content,
             attachment_filename=safe_name,
             attachment_original_name=original_name,
         )
-    
     except Exception:
         if file_path and os.path.exists(file_path):
             os.remove(file_path)
-
         current_app.logger.exception("Failed to create entry")
         errors = {"__all__": "Could not save entry. Please try again."}
-        return render_template("entries/new.html", title=title, errors=errors), 500
-
+        return render_template("entries/new.html", title=title, content=content, errors=errors), 500
 
     flash("Entry created.")
     return redirect(url_for("entries.index"))
 
-    
 
 @bp.get("/<int:entry_id>")
 def detail(entry_id):

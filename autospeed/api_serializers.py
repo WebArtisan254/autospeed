@@ -8,5 +8,5 @@ def serialize_entry(e: Entry) -> dict:
         "content": e.content,
         "status": e.status,
         "created_at": e.created_at.isoformat() + "Z",
-        "update_at": e.updated_at.isoformat() + "Z" if getattr(e, "updated_at", None) else None,
+        "update_at": e.update_at.isoformat() + "Z" if e.update_at else None,
     }

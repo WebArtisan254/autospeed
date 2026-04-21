@@ -69,6 +69,9 @@ def create_app(test_config=None):
     from .api import bp as api_bp
     app.register_blueprint(api_bp)
 
+    from .forms import csrf
+    csrf.exempt(api_bp)
+
     upload_dir = app.config["UPLOAD_FOLDER"]
     os.makedirs(upload_dir, exist_ok=True)
 

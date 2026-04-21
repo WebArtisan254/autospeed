@@ -26,12 +26,16 @@ def get_user_with_entries(user_id: int) -> User | None:
     )
     return db.session.scalars(stmt).first()
 
-def create_entry(*, user_id: int, title: str, attachment_filename: str | None,
+def create_entry(*, user_id: int, title: str, content: str = "",
+                 attachment_filename: str | None,
                  attachment_original_name: str | None) -> Entry:
-    entry = Entry(user_id=user_id,
-                   title=title,
-                    attachment_filename=attachment_filename, 
-                    attachment_original_name=attachment_original_name)
+    entry = Entry(
+        user_id=user_id,
+        title=title,
+        content=content,
+        attachment_filename=attachment_filename,
+        attachment_original_name=attachment_original_name,
+    )
 
     db.session.add(entry)
     try:
@@ -44,6 +48,7 @@ def create_entry(*, user_id: int, title: str, attachment_filename: str | None,
         raise
 
     return entry
+
 
 def get_entry(entry_id: int) -> Entry | None:
     return db.session.get(Entry, entry_id)

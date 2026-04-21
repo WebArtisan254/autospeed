@@ -65,6 +65,7 @@ class Entry(db.Model):
 
     id: Mapped[int] = mapped_column(Integer, primary_key=True)
     title: Mapped[str] = mapped_column(String(120), nullable=False)
+    content: Mapped[str] = mapped_column(Text, nullable=False, default="")
     created_at: Mapped[datetime] = mapped_column(DateTime, default=lambda: datetime.now(timezone.utc), nullable=False)
     update_at: Mapped[datetime] = mapped_column(DateTime, default=lambda: datetime.now(timezone.utc), onupdate=lambda: datetime.now(timezone.utc), nullable=False)
 
@@ -82,9 +83,10 @@ class Entry(db.Model):
     )
 
     tags: Mapped[list["Tag"]] = relationship(
-        secondary=entry_tags, 
+        secondary=entry_tags,
         back_populates="entries",
     )
+
 
 class Attachment(db.Model):
     __tablename__ = "attachments"

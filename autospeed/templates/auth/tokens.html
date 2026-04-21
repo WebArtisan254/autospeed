@@ -1,0 +1,33 @@
+{% extends "base.html" %}
+{% block content %}
+<h1>API Tokens</h1>
+
+<form method="post" action="{{ url_for('auth.tokens') }}">
+  <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+  <label for="name">Token name</label>
+  <input type="text" name="name" id="name" placeholder="e.g. CI deploy key" required>
+  <button type="submit">Create token</button>
+</form>
+
+<h2>Active tokens</h2>
+{% if tokens %}
+<table>
+  <thead>
+    <tr>
+      <th>Name</th>
+      <th>Created</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for tok in tokens %}
+    <tr>
+      <td>{{ tok.name }}</td>
+      <td>{{ tok.created_at.strftime('%Y-%m-%d %H:%M') }}</td>
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
+{% else %}
+<p>No active tokens.</p>
+{% endif %}
+{% endblock %}

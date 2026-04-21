@@ -20,17 +20,12 @@
     </form>
 
     <p>
-        Showing {{ entries|length }} of {{ total }} result {{ "if total == 1 else 's"}}.
+        Showing {{ entries|length }} of {{ total }} result{{ "" if total == 1 else "s" }}.
     </p>
 
     {% if entries %}
         <ul>
             {% for entry in entries %}
-                <li>
-                    <a href="{{ url_for('entries.detail', entry_id=entry.id if entry.id is defined else entry['id']) }}">
-                        {{ entry.title if entry.title is defined else entry['title'] }}
-                    </a>
-                </li>
                 <li>
                     <a href="{{ url_for('entries.detail', entry_id=entry.id) }}">{{ entry.title }}</a>
                     <span>({{ entry.status }})</span>

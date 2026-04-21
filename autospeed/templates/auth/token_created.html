@@ -1,0 +1,10 @@
+{% extends "base.html" %}
+{% block content %}
+<h1>Token Created</h1>
+
+<p><strong>Copy this token now — you won't be able to see it again.</strong></p>
+
+<code>{{ token }}</code>
+
+<p><a href="{{ url_for('auth.tokens') }}">Back to tokens</a></p>
+{% endblock %}
