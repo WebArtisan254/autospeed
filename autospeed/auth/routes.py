@@ -1,7 +1,9 @@
+from datetime import datetime, timezone
 from flask import Blueprint, render_template, request, redirect, url_for, flash, current_app
 from flask_login import login_user, logout_user, login_required, current_user
 from sqlalchemy import select
-from ..models import db, User, ApiToken
+from ..jobs import get_queue
+from ..models import EmailOutbox, db, User, ApiToken
 from .session import mark_session_issued
 from .tokens import issue_token, consume_token
 
@@ -65,4 +67,93 @@ def tokens():
         select(ApiToken).where(ApiToken.user_id == current_user.id, ApiToken.revoked_at.is_(None))
     ).all()
     return render_template("auth/tokens.html", tokens=tokens)
+
+@bp.route("/reset", methods=["GET", "POST"])
+def reset_request():
+    if request.method == "GET":
+        return render_template("auth/reset_request.html", email="", errors={})
+
+    email = (request.form.get("email") or "").strip().lower()
+    errors = {}
+    if not email:
+        errors["email"] = "Email is required."
+        return render_template("auth/reset_request.html", email=email, errors=errors), 400
+
+    user = db.session.scalars(select(User).where(User.email == email)).first()
+
+    if user:
+        raw, tok = issue_token(user=user, purpose="reset", ttl_minutes=15)
+        reset_link = url_for("auth.reset_password", token=raw, _external=True)
+        current_app.logger.info("Password reset link for %s: %s", email, reset_link)
+
+        dedupe = EmailOutbox.make_dedupe_key(
+            kind="password_reset",
+            user_id=user.id,
+            token_id=tok.id,
+        )
+
+        existing = db.session.scalar(
+            select(EmailOutbox).where(EmailOutbox.dedupe_key == dedupe)
+        )
+
+        if existing is None:
+            msg = EmailOutbox(
+                dedupe_key=dedupe,
+                to_email=user.email,
+                subject="Reset your password",
+                body=(
+                    "You requested a password reset.\n\n"
+                    f"Reset your password using this link:\n{reset_link}\n\n"
+                    "If you did not request this, you can ignore this email."
+                ),
+                status="pending",
+            )
+            db.session.add(msg)
+            db.session.commit()
+
+            get_queue().enqueue(
+                "autospeed.tasks.email_tasks.deliver_outbox_email",
+                outbox_id=msg.id,
+                retry=3,
+            )
+
+    flash("If an account exists for that email, a reset link has been sent.")
+    return redirect(url_for("auth.login"))
+
+@bp.route("/reset/<token>", methods=["GET", "POST"])
+def reset_password(token: str):
+    if request.method == "GET":
+        return render_template("auth/reset_password.html", errors={})
+
+    password = request.form.get("password") or ""
+    confirm = request.form.get("confirm") or ""
+
+    errors = {}
+    if not password:
+        errors["password"] = "Password is required."
+    if password and len(password) < 10:
+        errors["password"] = "Use at least 10 characters."
+    if password != confirm:
+        errors["confirm"] = "Passwords do not match."
+
+    if errors:
+        return render_template("auth/reset_password.html", errors=errors), 400
+    
+    tok = consume_token(raw_token=token, purpose="reset")
+    if tok is None:
+        flash("Reset link is invalid or expired.")
+        return redirect(url_for("auth.reset_request"))
+    
+    user = db.session.get(User, tok.user_id)
+    if user is None:
+        flash("Reset link is invalid or expired.")
+        return redirect(url_for("auth.reset_request"))
+    
+    user.set_password(password)
+
+    user.session_valid_after = datetime.now(timezone.utc)
+
+    db.session.commit()
+    flash("Password updated. Please log in.")
+    return redirect(url_for("auth.login"))
 

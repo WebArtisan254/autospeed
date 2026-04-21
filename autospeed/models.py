@@ -178,3 +178,20 @@ class EmailOutbox(db.Model):
     def make_dedupe_key(*, kind: str, user_id: int, token_id: int) -> str:
         raw = f"{kind}:{user_id}:{token_id}"
         return hashlib.sha256(raw.encode("utf-8")).hexdigest()
+    
+class ImportJob(db.Model):
+    __tablename__ = "import_jobs"
+
+    id: Mapped[int] = mapped_column(Integer, primary_key=True)
+    user_id: Mapped[int] = mapped_column(ForeignKey("users.id"), nullable=False)
+    filename: Mapped[str] = mapped_column(String(255), nullable=False)
+    status: Mapped[str] = mapped_column(String(20), nullable=False, default="pending")
+    processed: Mapped[int] = mapped_column(Integer, nullable=False, default=0)
+    total: Mapped[int | None] = mapped_column(Integer, nullable=True)
+    error: Mapped[str | None] = mapped_column(Text, nullable=True)
+    created_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow, nullable=False)
+    user: Mapped["User"] = relationship()
+    storage_key: Mapped[str] = mapped_column(String(512), nullable=False)
+
+"""class PasswordResetToken(db.Model):
+    outbox_id: Mapped[int | None] = mapped_column(ForeignKey("email_outbox.id"), nullable=True)"""
