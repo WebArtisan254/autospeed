@@ -4,7 +4,9 @@
 
 {% block content %}
     <h1>Entries</h1>
-    
+
+    <a href="{{ url_for('entries.create') }}" class="btn btn-primary">Create Entry</a>
+
     <form method="get">
         <label>
             Search 

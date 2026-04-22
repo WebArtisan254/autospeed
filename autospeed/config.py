@@ -17,6 +17,9 @@ class BaseConfig:
 
     CORS_ALLOWED_ORIGINS = []
 
+    BOOTSTRAP_BOOTSWATCH_THEME = 'sketchy'
+
+
 #Default    
 class DevelopmentConfig(BaseConfig):
     DEBUG = True

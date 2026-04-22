@@ -6,13 +6,16 @@
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <meta name="author" content="Luis Morrissey">
         <meta name="description" content="Base Html Page for common UI.">
+        {{ bootstrap.load_css() }}
     </head>
     <body>
         {% include "_nav.html" %}
 
-        <main>
+        <main class="container mt-4">
             {% include "_flash.html" %}
             {% block content %}{% endblock %}
         </main>
+
+        {{ bootstrap.load_js() }}
     </body>
 </html>

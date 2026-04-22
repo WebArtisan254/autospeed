@@ -8,8 +8,10 @@ from .cors import init_cors
 from flask_smorest import Api
 from .api_docs import api
 from .logging import configure_logging
+from flask_bootstrap import Bootstrap5
 
 migrate = Migrate()
+bootstrap = Bootstrap5()
 
 def create_app(config_object=None, test_config=None):
     app = Flask(__name__)
@@ -50,7 +52,13 @@ def create_app(config_object=None, test_config=None):
         response.headers["X-Content-Type-Options"] = "nosniff"
         response.headers["X-Frame-Options"] = "DENY"
         response.headers["Referrer-Policy"] = "strict-origin-when-cross-origin"
-        response.headers["Content-Security-Policy"] = "default-src 'self'"
+        response.headers["Content-Security-Policy"] = (
+            "default-src 'self'; "
+            "style-src 'self' https://cdn.jsdelivr.net 'unsafe-inline'; "
+            "script-src 'self' https://cdn.jsdelivr.net; "
+            "font-src 'self' https://cdn.jsdelivr.net"
+        )
+
         return response
 
     # Database Configurations
@@ -74,6 +82,7 @@ def create_app(config_object=None, test_config=None):
     init_cors(app)
     api.init_app(app)
     init_auth(app)
+    bootstrap.init_app(app)
 
     # Register blueprints
     from .errors import register_error_handlers

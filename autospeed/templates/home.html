@@ -4,6 +4,8 @@
 
 {% block content %}
 <h1>Welcome to AutoSpeed</h1>
+<img src="{{ url_for('static', filename='images/autospeed.jpg') }}" alt="Luis Morrissey">
+
 
 {% if current_user.is_authenticated %}
     <p>You're logged in as <strong>{{ current_user.username }}</strong>.</p>
