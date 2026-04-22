@@ -17,3 +17,12 @@ instance/
 # Vim swap files
 *.swp
 .*.swp
+
+# Production env
+.env.production
+
+# Uploads
+uploads/
+
+# IDE
+.vscode/

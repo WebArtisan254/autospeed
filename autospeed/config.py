@@ -40,10 +40,10 @@ class ProductionConfig(BaseConfig):
     DEBUG = False
     TESTING = False
 
-    SESSION_COOKIE_SECURE = True
+    #SESSION_COOKIE_SECURE = True
     SESSION_COOKIE_HTTPONLY = True
     SESSION_COOKIE_SAMESITE = "Lax"
-    REMEMBER_COOKIE_SECURE = True
+    #REMEMBER_COOKIE_SECURE = True
     REMEMBER_COOKIE_HTTPONLY = True
     REMEMBER_COOKIE_SAMESITE = "Lax"
 
@@ -55,6 +55,6 @@ class ProductionConfig(BaseConfig):
     #SMTP_PASSWORD = os.environ["SMTP_PASSWORD"]
     SMTP_SENDER = "no-reply@autospeed.com"
 
-    REQUIRE_HTTPS = True
+    #REQUIRE_HTTPS = True
 
     MAX_CONTENT_LENGTH = 10 * 1024 *  1024
