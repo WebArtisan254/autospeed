@@ -101,8 +101,9 @@ def create_app(config_object=None, test_config=None):
     os.makedirs(upload_dir, exist_ok=True)
 
     # Logs at app creation
-    app.logger.info("Application created with environment=%s", app.config.get("ENV", "unknown"))
-    app.logger.info("Booting app with AUTOSPEED_ENV=%s", os.environ.get("AUTOSPEED_ENV", "development"))
+    env = os.environ.get("AUTOSPEED_ENV", "development")
+    app.logger.info("Application created with environment=%s", env)
+    app.logger.info("Booting app with AUTOSPEED_ENV=%s", env)
 
     # Health route for verification of app boot
     @app.get("/health")

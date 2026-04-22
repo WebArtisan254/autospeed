@@ -22,13 +22,13 @@ dictConfig({
 from autospeed import create_app
 import os
 
-env = os.getenv("ENV_NAME", "prod")
+env = os.getenv("AUTOSPEED_ENV", "development")
 
 config_map = {
-    "prod": "autospeed.config.ProductionConfig",
+    "production": "autospeed.config.ProductionConfig",
     "staging": "autospeed.config.StagingConfig",
-    "dev": "autospeed.config.BaseConfig",
+    "development": "autospeed.config.DevelopmentConfig",
     "test": "autospeed.config.TestConfig",
 }
 
-app = create_app(config_map.get(env, "autospeed.config.ProductionConfig"))
+app = create_app(config_map.get(env, "autospeed.config.DevelopmentConfig"))
