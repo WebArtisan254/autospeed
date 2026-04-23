@@ -1,7 +1,7 @@
 from __future__ import annotations
 from datetime import datetime, timezone
 from flask_sqlalchemy import SQLAlchemy
-from typing import Optional, List
+from typing import List
 from sqlalchemy import String, Integer, DateTime, ForeignKey, Boolean, Text, UniqueConstraint
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 from sqlalchemy import Table, Column
@@ -73,34 +73,12 @@ class Entry(db.Model):
     user_id: Mapped[int] = mapped_column(ForeignKey("users.id"), nullable=False)
     user: Mapped["User"] = relationship(back_populates="entries")
 
-    attachment_filename: Mapped[Optional[str]] = mapped_column(String(255), nullable=True)
-    attachment_original_name: Mapped[Optional[str]] = mapped_column(String(255), nullable=True)
-
     status: Mapped[str] = mapped_column(String(20), nullable=False, default="draft")
-
-    attachments: Mapped[List["Attachment"]] = relationship(
-        back_populates="entry",
-        cascade="all, delete-orphan",
-    )
 
     tags: Mapped[list["Tag"]] = relationship(
         secondary=entry_tags,
         back_populates="entries",
     )
-
-
-class Attachment(db.Model):
-    __tablename__ = "attachments"
-
-    id: Mapped[int] = mapped_column(Integer, primary_key=True)
-    stored_name: Mapped[str] = mapped_column(String(255), nullable=False)
-    original_name: Mapped[str] = mapped_column(String(255), nullable=False)
-    content_type: Mapped[str] = mapped_column(String(100), nullable=False)
-    size_bytes: Mapped[int] = mapped_column(Integer, nullable=False)
-    created_at: Mapped[datetime] = mapped_column(DateTime, default=lambda: datetime.now(timezone.utc), nullable=False)
-
-    entry_id: Mapped[int] = mapped_column(ForeignKey("entries.id"), nullable=False)
-    entry: Mapped["Entry"] = relationship(back_populates="attachments")
 
 class User_Token(db.Model):
     __tablename__ = "user_tokens"
@@ -181,4 +159,3 @@ class EmailOutbox(db.Model):
     def make_dedupe_key(*, kind: str, user_id: int, token_id: int) -> str:
         raw = f"{kind}:{user_id}:{token_id}"
         return hashlib.sha256(raw.encode("utf-8")).hexdigest()
-

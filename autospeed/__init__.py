@@ -58,7 +58,6 @@ def create_app(config_object=None, test_config=None):
             "script-src 'self' https://cdn.jsdelivr.net; "
             "font-src 'self' https://cdn.jsdelivr.net"
         )
-
         return response
 
     # Database Configurations
@@ -105,9 +104,6 @@ def create_app(config_object=None, test_config=None):
 
     from .home import bp as home_bp
     app.register_blueprint(home_bp)
-
-    upload_dir = app.config["UPLOAD_FOLDER"]
-    os.makedirs(upload_dir, exist_ok=True)
 
     # Logs at app creation
     env = os.environ.get("AUTOSPEED_ENV", "development")

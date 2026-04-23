@@ -26,15 +26,11 @@ def get_user_with_entries(user_id: int) -> User | None:
     )
     return db.session.scalars(stmt).first()
 
-def create_entry(*, user_id: int, title: str, content: str = "",
-                 attachment_filename: str | None,
-                 attachment_original_name: str | None) -> Entry:
+def create_entry(*, user_id: int, title: str, content: str = "") -> Entry:
     entry = Entry(
         user_id=user_id,
         title=title,
         content=content,
-        attachment_filename=attachment_filename,
-        attachment_original_name=attachment_original_name,
     )
 
     db.session.add(entry)

@@ -1,10 +1,7 @@
-from flask import Blueprint, render_template, request, make_response, current_app, flash, redirect, url_for
-import os
+from flask import Blueprint, render_template, request, current_app, flash, redirect, url_for
 from .db_access import create_entry, list_entries, get_entry
-from werkzeug.utils import secure_filename
 from flask_login import current_user, login_required
 from .domain.entries import (
-    create_entry_for_user,
     update_entry_for_user,
     delete_entry_for_user,
     NotFoundError,
@@ -14,27 +11,6 @@ from .domain.entries import (
 
 bp = Blueprint("entries", __name__, url_prefix="/entries")
 
-_DEMO_ENTRIES = [
-    {"id": i, "title": f"Entry {i}"} for i in range(1, 101)
-]
-
-_ENTRIES = []
-
-def _parse_int(value, default, minimum=None, maximum=None):
-    try:
-        n = int(value)
-    except (TypeError, ValueError):
-        return default
-    if minimum is not None and n < minimum:
-        return default
-    if maximum is not None and n > maximum:
-        return default
-    return n
-
-ALLOWED_EXTENSIONS = {"png", "jpg", "jpeg", "pdf"}
-
-def _allowed_file(filename):
-    return "." in filename and filename.rsplit(".", 1)[1].lower() in ALLOWED_EXTENSIONS
 
 @bp.get('/')
 @login_required
@@ -54,8 +30,8 @@ def index():
     per_page = min(max(per_page, 1), 50)
 
     entries, total = list_entries(
-        user_id=current_user.id, 
-        q=q, 
+        user_id=current_user.id,
+        q=q,
         page=page,
         per_page=per_page,
     )
@@ -74,7 +50,8 @@ def index():
         has_next=has_next,
     )
 
-def _validate_entry_form(form, files):
+
+def _validate_entry_form(form):
     title = (form.get("title") or "").strip()
     content = (form.get("content") or "").strip()
 
@@ -85,12 +62,7 @@ def _validate_entry_form(form, files):
     if title and len(title) > 120:
         errors["title"] = "Title must be 120 characters or fewer."
 
-    attachment = files.get("attachment")
-    if attachment and attachment.filename:
-        if not _allowed_file(attachment.filename):
-            errors["attachment"] = "Unsupported file type."
-
-    return title, content, attachment, errors
+    return title, content, errors
 
 
 @bp.route("/new", methods=["GET", "POST"])
@@ -99,34 +71,18 @@ def create():
     if request.method == "GET":
         return render_template("entries/new.html", title="", content="", errors={})
 
-    title, content, upload, errors = _validate_entry_form(request.form, request.files)
+    title, content, errors = _validate_entry_form(request.form)
 
     if errors:
         return render_template("entries/new.html", title=title, content=content, errors=errors), 400
 
-    safe_name = None
-    original_name = None
-    file_path = None
-
-    if upload and upload.filename:
-        safe_name = secure_filename(upload.filename)
-        original_name = upload.filename
-        file_path = os.path.join(current_app.config["UPLOAD_FOLDER"], safe_name)
-
     try:
-        if file_path:
-            upload.save(file_path)
-
         create_entry(
             user_id=current_user.id,
             title=title,
             content=content,
-            attachment_filename=safe_name,
-            attachment_original_name=original_name,
         )
     except Exception:
-        if file_path and os.path.exists(file_path):
-            os.remove(file_path)
         current_app.logger.exception("Failed to create entry")
         errors = {"__all__": "Could not save entry. Please try again."}
         return render_template("entries/new.html", title=title, content=content, errors=errors), 500
@@ -190,6 +146,7 @@ def edit(entry_id):
 
     flash("Entry updated.")
     return redirect(url_for("entries.detail", entry_id=entry_id))
+
 
 @bp.post("/<int:entry_id>/delete")
 @login_required

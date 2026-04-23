@@ -8,8 +8,6 @@ class BaseConfig:
 
     DATABASE_URL = os.environ.get("AUTOSPEED_DATABASE_URL", f"sqlite:///{os.path.join(BASE_DIR, 'instance', 'dev.db')}")
 
-    UPLOAD_FOLDER = os.environ.get("AUTOSPEED_UPLOAD_FOLDER", "uploads")
-
     USE_PROXY_FIX = os.environ.get("AUTOSPEED_USE_PROXY_FIX", "false").lower() == "true"
 
     GOOGLE_CLIENT_ID = os.environ.get("GOOGLE_CLIENT_ID")
@@ -17,7 +15,7 @@ class BaseConfig:
 
     CORS_ALLOWED_ORIGINS = []
 
-    BOOTSTRAP_BOOTSWATCH_THEME = 'sketchy'
+    BOOTSTRAP_BOOTSWATCH_THEME = 'vapor'
 
 
 #Default    
