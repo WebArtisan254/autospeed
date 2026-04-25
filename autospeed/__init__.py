@@ -79,9 +79,10 @@ def create_app(config_object=None, test_config=None):
     migrate.init_app(app, db)
     limiter.init_app(app)
     init_cors(app)
-    api.init_app(app)
     init_auth(app)
     bootstrap.init_app(app)
+    if not app.config.get("TESTING"):
+        api.init_app(app)
 
     # Register blueprints
     from .errors import register_error_handlers
