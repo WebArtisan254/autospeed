@@ -11,6 +11,9 @@
                         <a class="nav-link" href="{{ url_for('entries.index') }}">Entries</a>
                     </li>
                     <li class="nav-item">
+                        <a class="nav-link" href="{{ url_for('auth.tokens') }}">API Tokens</a>
+                    </li>
+                    <li class="nav-item">
                         <a class="nav-link" href="{{ url_for('users.me') }}">Profile</a>
                     </li>
                     {% if current_user.is_admin() %}
@@ -36,3 +39,4 @@
         </div>
     </div>
 </nav>
+

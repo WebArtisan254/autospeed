@@ -1,15 +1,15 @@
-<label>
-    Title
-    <input type="text" name="title" value="{{ title }}">
-</label>
-{% if errors.get("title") %}
-    <p>{{ errors["title"] }}</p>
-{% endif %}
+<div class="mb-3">
+    <label for="title" class="form-label">Title</label>
+    <input type="text" name="title" id="title" class="form-control" value="{{ title }}">
+    {% if errors.get("title") %}
+        <div class="text-danger mt-1">{{ errors["title"] }}</div>
+    {% endif %}
+</div>
 
-<label>
-    Content
-    <textarea name="content" rows="10">{{ content }}</textarea>
-</label>
-{% if errors.get("content") %}
-    <p>{{ errors["content"] }}</p>
-{% endif %}
+<div class="mb-3">
+    <label for="content" class="form-label">Content</label>
+    <textarea name="content" id="content" class="form-control" rows="10">{{ content }}</textarea>
+    {% if errors.get("content") %}
+        <div class="text-danger mt-1">{{ errors["content"] }}</div>
+    {% endif %}
+</div>

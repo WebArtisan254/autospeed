@@ -3,41 +3,41 @@
 {% block title %}Edit: {{ entry.title }}{% endblock %}
 
 {% block content %}
+    <a href="{{ url_for('entries.detail', entry_id=entry.id) }}" class="btn btn-outline-primary mb-3">← Back to Entry</a>
+
     <h1>Edit Entry</h1>
 
     {% if errors.get("__all__") %}
-        <p>{{ errors["__all__"] }}</p>
+        <div class="alert alert-danger">{{ errors["__all__"] }}</div>
     {% endif %}
 
     <form method="post">
         <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
 
-        <label>
-            Title
-            <input type="text" name="title" value="{{ title }}">
-        </label>
-        {% if errors.get("title") %}
-            <p>{{ errors["title"] }}</p>
-        {% endif %}
+        <div class="mb-3">
+            <label for="title" class="form-label">Title</label>
+            <input type="text" name="title" id="title" class="form-control" value="{{ title }}">
+            {% if errors.get("title") %}
+                <div class="text-danger mt-1">{{ errors["title"] }}</div>
+            {% endif %}
+        </div>
 
-        <label>
-            Content
-            <textarea name="content" rows="10">{{ content }}</textarea>
-        </label>
-        {% if errors.get("content") %}
-            <p>{{ errors["content"] }}</p>
-        {% endif %}
+        <div class="mb-3">
+            <label for="content" class="form-label">Content</label>
+            <textarea name="content" id="content" class="form-control" rows="10">{{ content }}</textarea>
+            {% if errors.get("content") %}
+                <div class="text-danger mt-1">{{ errors["content"] }}</div>
+            {% endif %}
+        </div>
 
-        <label>
-            Status
-            <select name="status">
+        <div class="mb-3">
+            <label for="status" class="form-label">Status</label>
+            <select name="status" id="status" class="form-select">
                 <option value="draft" {{ "selected" if status == "draft" }}>Draft</option>
                 <option value="published" {{ "selected" if status == "published" }}>Published</option>
             </select>
-        </label>
+        </div>
 
-        <button type="submit">Save</button>
+        <button type="submit" class="btn btn-primary">Save</button>
     </form>
-
-    <a href="{{ url_for('entries.detail', entry_id=entry.id) }}">Cancel</a>
 {% endblock %}

@@ -36,7 +36,7 @@ def register():
     login_user(user)
     mark_session_issued()
     flash("Account created. Welcome to my First Web App Project!!")
-    return redirect(url_for("entries.index"))
+    return redirect(url_for("home.index"))
 
 @bp.route("/login", methods=["GET", "POST"])
 def login():
@@ -63,7 +63,7 @@ def login():
     login_user(user)
     mark_session_issued()
     flash("You are now logged in.")
-    return redirect(url_for("entries.index"))
+    return redirect(url_for("home.index"))
 
 @bp.post("/logout")
 @login_required

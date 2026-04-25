@@ -3,25 +3,25 @@
 {% block title %}Reset Password{% endblock %}
 
 {% block content %}
+    <a href="{{ url_for('auth.login') }}" class="btn btn-outline-primary mb-3">← Back to Login</a>
+
     <h1>Reset Password</h1>
 
     {% if errors.get("__all__") %}
-        <p>{{ errors["__all__"] }}</p>
+        <div class="alert alert-danger">{{ errors["__all__"] }}</div>
     {% endif %}
 
     <form method="post">
         <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
 
-        <label>
-            Email
-            <input type="email" name="email" value="{{ email }}">
-        </label>
-        {% if errors.get("email") %}
-            <p>{{ errors["email"] }}</p>
-        {% endif %}
+        <div class="mb-3">
+            <label for="email" class="form-label">Email</label>
+            <input type="email" name="email" id="email" class="form-control" value="{{ email }}">
+            {% if errors.get("email") %}
+                <div class="text-danger mt-1">{{ errors["email"] }}</div>
+            {% endif %}
+        </div>
 
-        <button type="submit">Send reset link</button>
+        <button type="submit" class="btn btn-primary">Send Reset Link</button>
     </form>
-
-    <p><a href="{{ url_for('auth.login') }}">Back to login</a></p>
 {% endblock %}

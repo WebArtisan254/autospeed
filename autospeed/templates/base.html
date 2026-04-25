@@ -7,6 +7,7 @@
         <meta name="author" content="Luis Morrissey">
         <meta name="description" content="Base Html Page for common UI.">
         {{ bootstrap.load_css() }}
+        <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
     </head>
     <body>
         {% include "_nav.html" %}

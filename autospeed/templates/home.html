@@ -3,19 +3,68 @@
 {% block title %}AutoSpeed{% endblock %}
 
 {% block content %}
-<h1>Welcome to AutoSpeed</h1>
-<img src="{{ url_for('static', filename='images/autospeed.jpg') }}" alt="Luis Morrissey">
+<div class="hero">
+    <div class="hero-image">
+        <img src="{{ url_for('static', filename='images/AutoSpeedLogo.jpg') }}" 
+             alt="AutoSpeed Logo. A rabbit typing fast on a keyboard listening to heavy metal.">
+    </div>
+    <div class="hero-content">
+        <h1>Welcome to AutoSpeed</h1>
 
+        {% if current_user.is_authenticated %}
+            <p>You're logged in as <strong>{{ current_user.username }}</strong>.</p>
+            <div class="hero-links">
+                <a href="{{ url_for('entries.index') }}" class="btn btn-primary">Your Entries</a>
+                <a href="{{ url_for('users.me') }}" class="btn btn-outline-primary">Profile</a>
+                <a href="{{ url_for('auth.tokens') }}" class="btn btn-outline-primary">API Tokens</a>
+            </div>
+        {% else %}
+            <p class="lead">A fast, simple entry management app built with Flask.</p>
+            <p>Get started by logging in or creating an account.</p>
+            <div class="hero-links">
+                <a href="{{ url_for('auth.login') }}" class="btn btn-primary">Log In</a>
+                <a href="{{ url_for('auth.register') }}" class="btn btn-outline-primary">Register</a>
+            </div>
+        {% endif %}
+    </div>
+</div>
 
-{% if current_user.is_authenticated %}
-    <p>You're logged in as <strong>{{ current_user.username }}</strong>.</p>
+<div class="about">
+    <h2>About This Project</h2>
     <p>
-        <a href="{{ url_for('entries.index') }}">Your Entries</a> |
-        <a href="{{ url_for('users.me') }}">Profile</a> |
-        <a href="{{ url_for('auth.tokens') }}">API Tokens</a>
+        AutoSpeed was built as a hands-on project to learn full-stack web development using 
+        open-source technologies. The backend runs on <strong>Python</strong> and 
+        <strong>Flask</strong>, with <strong>PostgreSQL</strong> handling the database, 
+        <strong>HTML/CSS/Bootstrap</strong> for the frontend, and a <strong>Fedora</strong> 
+        server on <strong>DigitalOcean</strong> for deployment.
     </p>
-{% else %}
-    <p>A fast, simple entry management app.</p>
-    <p>Get started by logging in or creating an account.</p>
-{% endif %}
+    <p>
+        The project was inspired by a <strong>Cisco DevNet</strong> course and built following 
+        <em>Flask for Real Projects: A Hands-On Guide to Building Modern Python Web Applications</em> 
+        by <strong>Calissa Corinne</strong>.
+    </p>
+</div>
+
+<div class="features">
+    <h2>What Can AutoSpeed Do?</h2>
+    <div class="feature-grid">
+        <div class="feature-card">
+            <h3>RESTful API</h3>
+            <p>Full API with token-based authentication. Create, read, update, and delete entries programmatically. Generate personal API tokens and integrate AutoSpeed into your own workflows.</p>
+        </div>
+        <div class="feature-card">
+            <h3>Entry Management</h3>
+            <p>Create and organize entries with draft and published statuses. Search, filter, and paginate through your content with ease.</p>
+        </div>
+        <div class="feature-card">
+            <h3>Secure Authentication</h3>
+            <p>User registration with email verification, secure password hashing, session management, and OAuth support. Your data stays yours.</p>
+        </div>
+        <div class="feature-card">
+            <h3>Admin Dashboard</h3>
+            <p>Admin users can manage all accounts, monitor activity, and maintain the platform from a dedicated admin panel.</p>
+        </div>
+    </div>
+</div>
 {% endblock %}
+

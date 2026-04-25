@@ -3,40 +3,40 @@
 {% block title %}Edit User: {{ user.username }}{% endblock %}
 
 {% block content %}
+    <a href="{{ url_for('admin.users') }}" class="btn btn-outline-primary mb-3">← Back to Users</a>
+
     <h1>Edit User: {{ user.username }}</h1>
 
     <form method="post">
         <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
 
-        <label>
-            Username
-            <input type="text" name="username" value="{{ username }}">
-        </label>
-        {% if errors.get("username") %}
-            <p>{{ errors["username"] }}</p>
-        {% endif %}
+        <div class="mb-3">
+            <label for="username" class="form-label">Username</label>
+            <input type="text" name="username" id="username" class="form-control" value="{{ username }}">
+            {% if errors.get("username") %}
+                <div class="text-danger mt-1">{{ errors["username"] }}</div>
+            {% endif %}
+        </div>
 
-        <label>
-            Email
-            <input type="email" name="email" value="{{ email }}">
-        </label>
-        {% if errors.get("email") %}
-            <p>{{ errors["email"] }}</p>
-        {% endif %}
+        <div class="mb-3">
+            <label for="email" class="form-label">Email</label>
+            <input type="email" name="email" id="email" class="form-control" value="{{ email }}">
+            {% if errors.get("email") %}
+                <div class="text-danger mt-1">{{ errors["email"] }}</div>
+            {% endif %}
+        </div>
 
-        <label>
-            Role
-            <select name="role">
+        <div class="mb-3">
+            <label for="role" class="form-label">Role</label>
+            <select name="role" id="role" class="form-select">
                 <option value="member" {{ "selected" if role == "member" }}>Member</option>
                 <option value="admin" {{ "selected" if role == "admin" }}>Admin</option>
             </select>
-        </label>
-        {% if errors.get("role") %}
-            <p>{{ errors["role"] }}</p>
-        {% endif %}
+            {% if errors.get("role") %}
+                <div class="text-danger mt-1">{{ errors["role"] }}</div>
+            {% endif %}
+        </div>
 
-        <button type="submit">Save</button>
+        <button type="submit" class="btn btn-primary">Save</button>
     </form>
-
-    <a href="{{ url_for('admin.users') }}">Cancel</a>
 {% endblock %}

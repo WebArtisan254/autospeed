@@ -3,17 +3,20 @@
 {% block title %}{{ entry.title }}{% endblock %}
 
 {% block content %}
-    <h1>{{ entry.title }}</h1>
-    <p><small>{{ entry.status }} — {{ entry.created_at.strftime('%Y-%m-%d %H:%M') }}</small></p>
+    <a href="{{ url_for('entries.index') }}" class="btn btn-outline-primary mb-3">← Back to Entries</a>
 
-    <div>{{ entry.content }}</div>
+    <div class="card mb-4">
+        <div class="card-body">
+            <h1>{{ entry.title }}</h1>
+            <p><small>{{ entry.status }} — {{ entry.created_at.strftime('%Y-%m-%d %H:%M') }}</small></p>
+            <div>{{ entry.content }}</div>
+        </div>
+    </div>
 
-    <a href="{{ url_for('entries.edit', entry_id=entry.id) }}">Edit</a>
+    <a href="{{ url_for('entries.edit', entry_id=entry.id) }}" class="btn btn-primary me-2">UpDate</a>
 
     <form method="post" action="{{ url_for('entries.delete', entry_id=entry.id) }}" style="display: inline;">
         <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
-        <button type="submit" onclick="return confirm('Delete this entry?')">Delete</button>
+        <button type="submit" class="btn btn-danger" onclick="return confirm('Delete this entry?')">Delete</button>
     </form>
-
-    <a href="{{ url_for('entries.index') }}">Back to entries</a>
 {% endblock %}

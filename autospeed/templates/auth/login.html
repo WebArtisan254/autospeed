@@ -3,37 +3,41 @@
 {% block title %}Log In{% endblock %}
 
 {% block content %}
+    <a href="{{ url_for('home.index') }}" class="btn btn-outline-primary mb-3">← Back to Home</a>
+
     <h1>Log In</h1>
 
+    <div class="alert alert-warning">
+        <strong>Prototype Notice:</strong> This app is currently in development and does not yet use HTTPS encryption.
+        Please do not use a real password — use a throwaway password for testing purposes only.
+    </div>
+
     {% if errors.get("__all__") %}
-        <p>{{ errors["__all__"] }}</p>
+        <div class="alert alert-danger">{{ errors["__all__"] }}</div>
     {% endif %}
 
     <form method="post">
         <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
 
-        <label>
-            Username
-            <input type="text" name="username" value="{{ username }}">
-        </label>
-        {% if errors.get("username") %}
-            <p>{{ errors["username"] }}</p>
-        {% endif %}
+        <div class="mb-3">
+            <label for="username" class="form-label">Username</label>
+            <input type="text" name="username" id="username" class="form-control" value="{{ username }}">
+            {% if errors.get("username") %}
+                <div class="text-danger mt-1">{{ errors["username"] }}</div>
+            {% endif %}
+        </div>
 
-        <label>
-            Password
-            <input type="password" name="password">
-        </label>
-        {% if errors.get("password") %}
-            <p>{{ errors["password"] }}</p>
-        {% endif %}
+        <div class="mb-3">
+            <label for="password" class="form-label">Password</label>
+            <input type="password" name="password" id="password" class="form-control">
+            {% if errors.get("password") %}
+                <div class="text-danger mt-1">{{ errors["password"] }}</div>
+            {% endif %}
+        </div>
 
-        <button type="submit">Log in</button>
+        <button type="submit" class="btn btn-primary">Log In</button>
     </form>
 
-    <p><a href="{{ url_for('auth.reset_request') }}">Forgot your password?</a></p>
+    <p class="mt-3"><a href="{{ url_for('auth.reset_request') }}">Forgot your password?</a></p>
     <p>Don't have an account? <a href="{{ url_for('auth.register') }}">Register</a></p>
-    <!--<p>
-        <a href="{{ url_for('oauth.google_login') }}">Continue with Google</a>
-    </p>--->
 {% endblock %}
