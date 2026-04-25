@@ -48,8 +48,23 @@ class User(UserMixin, db.Model):
     )
 
     entries: Mapped[List["Entry"]] = relationship(
-        back_populates="user", 
-        cascade="all, delete-orphan", 
+        back_populates="user",
+        cascade="all, delete-orphan",
+    )
+
+    tokens: Mapped[List["User_Token"]] = relationship(
+        back_populates="user",
+        cascade="all, delete-orphan",
+    )
+
+    oauth_identities: Mapped[List["OAuthIdentity"]] = relationship(
+        back_populates="user",
+        cascade="all, delete-orphan",
+    )
+
+    api_tokens: Mapped[List["ApiToken"]] = relationship(
+        back_populates="user",
+        cascade="all, delete-orphan",
     )
 
     def is_admin(self) -> bool:
