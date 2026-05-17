@@ -8,6 +8,7 @@ from .cors import init_cors
 from .api_docs import api
 from .logging import configure_logging
 from flask_bootstrap import Bootstrap5
+from werkzeug.middleware.proxy_fix import ProxyFix
 
 migrate = Migrate()
 bootstrap = Bootstrap5()
@@ -41,6 +42,10 @@ def create_app(config_object=None, test_config=None):
         env = os.environ.get("AUTOSPEED_ENV", "development").lower()
         if env != "development":
             raise RuntimeError("AUTOSPEED_SECRET_KEY must be set for non-development environments")
+        
+    #Proxy Fix
+    if app.config.get("USE_PROXY_FIX"):
+        app.wsgi_app = ProxyFix(app.wsgi_app, x_for=1, x_proto=1, x_host=1)
 
     # HTTPS redirect for production
     if app.config.get("REQUIRE_HTTPS"):

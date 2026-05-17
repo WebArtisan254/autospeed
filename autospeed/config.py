@@ -45,20 +45,22 @@ class ProductionConfig(BaseConfig):
     TESTING = False
     SECRET_KEY = os.environ.get("AUTOSPEED_SECRET_KEY")
 
-    #SESSION_COOKIE_SECURE = True
+    SESSION_COOKIE_SECURE = True
     SESSION_COOKIE_HTTPONLY = True
     SESSION_COOKIE_SAMESITE = "Lax"
-    #REMEMBER_COOKIE_SECURE = True
+    REMEMBER_COOKIE_SECURE = True
     REMEMBER_COOKIE_HTTPONLY = True
     REMEMBER_COOKIE_SAMESITE = "Lax"
 
-    CORS_ALLOWED_ORIGINS = ["https://autospeed.com"]
+    USE_PROXY_FIX = True
+
+    CORS_ALLOWED_ORIGINS = ["https://proautotype.com", "https://www.proautotype.com"]
 
     SMTP_HOST = "smtp.yourprovider.com"
     SMTP_PORT = 587
     SMTP_USERNAME = "apikey"
-    #SMTP_PASSWORD = os.environ["SMTP_PASSWORD"]
-    SMTP_SENDER = "no-reply@autospeed.com"
+    SMTP_PASSWORD = os.environ.get("SMTP_PASSWORD")
+    SMTP_SENDER = "no-reply@proautotype.com"
 
-    #REQUIRE_HTTPS = True
+    REQUIRE_HTTPS = True
 
