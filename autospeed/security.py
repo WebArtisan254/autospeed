@@ -9,7 +9,7 @@ def require_role(*roles: str):
         @wraps(view)
         @login_required
         def wrapped(*args, **kwargs):
-            if not getattr(current_user, "role", None) in roles:
+            if getattr(current_user, "role", None) not in roles:
                 abort(403)
             return view(*args, **kwargs)
         return wrapped
