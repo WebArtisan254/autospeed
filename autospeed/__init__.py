@@ -5,7 +5,6 @@ import os
 from .auth import init_auth
 from .rate_limit import limiter   
 from .cors import init_cors
-from flask_smorest import Api
 from .api_docs import api
 from .logging import configure_logging
 from flask_bootstrap import Bootstrap5
@@ -83,6 +82,9 @@ def create_app(config_object=None, test_config=None):
     bootstrap.init_app(app)
     if not app.config.get("TESTING"):
         api.init_app(app)
+    
+    from .middleware import register_request_logging
+    register_request_logging(app)
 
     # Register blueprints
     from .errors import register_error_handlers
