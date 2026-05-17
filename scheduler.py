@@ -1,5 +1,5 @@
 import time
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 from rq import Retry
 from autospeed import create_app
 from autospeed.jobs import get_queue
@@ -10,10 +10,10 @@ def main():
     app = create_app()
     q = get_queue()
 
-    next_run = datetime.utcnow()
+    next_run = datetime.now(timezone.utc)
 
     while True:
-        now = datetime.utcnow()
+        now = datetime.now(timezone.utc)
         if now >= next_run:
             with app.app_context():
                 q.enqueue(

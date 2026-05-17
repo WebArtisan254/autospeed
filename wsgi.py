@@ -1,4 +1,7 @@
 from logging.config import dictConfig
+from autospeed import create_app
+import os
+
 
 dictConfig({
     "version": 1, 
@@ -19,8 +22,6 @@ dictConfig({
     }
 })
 
-from autospeed import create_app
-import os
 
 env = os.getenv("AUTOSPEED_ENV", "development")
 
@@ -28,7 +29,6 @@ config_map = {
     "production": "autospeed.config.ProductionConfig",
     "staging": "autospeed.config.StagingConfig",
     "development": "autospeed.config.DevelopmentConfig",
-    "test": "autospeed.config.TestConfig",
 }
 
 app = create_app(config_map.get(env, "autospeed.config.DevelopmentConfig"))
