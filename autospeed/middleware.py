@@ -14,11 +14,15 @@ def register_request_logging(app):
 
     @app.after_request
     def log_response(response):
-        dur = int((time.time() - g._start_time) * 1000)
+        start = getattr(g, '_start_time', None)
+        if start is not None:
+            dur = int((time.time() - start ) * 1000)
+        else:
+            dur = -1
         current_app.logger.info(
             "request end %s %s status=%s dur_ms=%s",
             request.method,
-            request.path,
+            request.path, 
             response.status_code,
             dur,
         )

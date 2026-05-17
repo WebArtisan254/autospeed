@@ -37,6 +37,11 @@ def create_app(config_object=None, test_config=None):
 
     app.config.from_prefixed_env()
 
+    if not app.config.get("TESTING") and app.config.get("SECRET_KEY") in ("dev", None):
+        env = os.environ.get("AUTOSPEED_ENV", "development").lower()
+        if env != "development":
+            raise RuntimeError("AUTOSPEED_SECRET_KEY must be set for non-development environments")
+
     # HTTPS redirect for production
     if app.config.get("REQUIRE_HTTPS"):
         @app.before_request

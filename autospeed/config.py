@@ -1,6 +1,8 @@
 import os 
 from dotenv import load_dotenv
 
+load_dotenv()
+
 class BaseConfig:
     BASE_DIR = os.path.abspath(os.path.dirname(os.path.dirname(__file__)))
     
@@ -11,12 +13,13 @@ class BaseConfig:
     USE_PROXY_FIX = os.environ.get("AUTOSPEED_USE_PROXY_FIX", "false").lower() == "true"
 
     GOOGLE_CLIENT_ID = os.environ.get("GOOGLE_CLIENT_ID")
-    GOOGLE_CLIENT_ID_SECRET = os.environ.get("GOOGLE_CLIENT_SECRET")
+    GOOGLE_CLIENT_SECRET = os.environ.get("GOOGLE_CLIENT_SECRET")
 
     CORS_ALLOWED_ORIGINS = []
 
     BOOTSTRAP_BOOTSWATCH_THEME = 'sketchy'
 
+    MAX_CONTENT_LENGTH = 10 * 1024 *  1024
 
 #Default    
 class DevelopmentConfig(BaseConfig):
@@ -40,6 +43,7 @@ class StagingConfig(BaseConfig):
 class ProductionConfig(BaseConfig):
     DEBUG = False
     TESTING = False
+    SECRET_KEY = os.environ.get("AUTOSPEED_SECRET_KEY")
 
     #SESSION_COOKIE_SECURE = True
     SESSION_COOKIE_HTTPONLY = True
@@ -58,4 +62,3 @@ class ProductionConfig(BaseConfig):
 
     #REQUIRE_HTTPS = True
 
-    MAX_CONTENT_LENGTH = 10 * 1024 *  1024
