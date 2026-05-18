@@ -1,6 +1,6 @@
 {% extends "base.html" %}
 
-{% block title %}AutoSpeed{% endblock %}
+{% block title %}ProAutoType{% endblock %}
 
 {% block content %}
 <div class="hero">
@@ -9,7 +9,7 @@
              alt="AutoSpeed Logo. A rabbit typing fast on a keyboard listening to heavy metal.">
     </div>
     <div class="hero-content">
-        <h1>Welcome to AutoSpeed</h1>
+        <h1>Welcome to ProAutoType</h1>
 
         {% if current_user.is_authenticated %}
             <p>You're logged in as <strong>{{ current_user.username }}</strong>.</p>
@@ -32,37 +32,41 @@
 <div class="about">
     <h2>About This Project</h2>
     <p>
-        AutoSpeed was built as a hands-on project to learn full-stack web development using 
-        open-source technologies. The backend runs on <strong>Python</strong> and 
-        <strong>Flask</strong>, with <strong>PostgreSQL</strong> handling the database, 
-        <strong>HTML/CSS/Bootstrap</strong> for the frontend, and a <strong>Fedora</strong> 
-        server on <strong>DigitalOcean</strong> for deployment.
-    </p>
-    <p>
-        The project was inspired by a <strong>Cisco DevNet</strong> course and built following 
-        <em>Flask for Real Projects: A Hands-On Guide to Building Modern Python Web Applications</em> 
-        by <strong>Calissa Corinne</strong>.
+        ProAutoType is my build-and-break-things project. I have had my eye on Flask for a while, 
+        and it was not until last fall that I witnessed a Flask application get configured with 
+        Jenkins for CI/CD pipelines that I decided to go deeper into it. Flask is great for prototyping
+         and experimenting with APIs. Reading and putting into practice best practices with production 
+         and security in my mind from the get-go. A great book I used to get started was Flask for Real 
+         Projects: A <em>Hands-On Guide to Building Modern Python Web Applications</em> by Calissa Corinne. 
+         From there, I wanted to add the suggested database, which works well with Flask, which is 
+         PostgreSQL. Installed the libraries for Bootstrap and used their “sketchy” theme for the UI. 
+         Deployed it on Digital Ocean, where I got to use one of my favorite distros. 
+         This Flask Application is currently running on a Fedora Server. 
     </p>
 </div>
 
 <div class="features">
-    <h2>What Can AutoSpeed Do?</h2>
+    <h2>What Can ProAutoType Do?</h2>
     <div class="feature-grid">
         <div class="feature-card">
             <h3>RESTful API</h3>
-            <p>Full API with token-based authentication. Create, read, update, and delete entries programmatically. Generate personal API tokens and integrate AutoSpeed into your own workflows.</p>
+            <p>Full API with token-based authentication. Create, read, update, and delete entries programmatically.
+                 Generate personal API tokens and integrate AutoSpeed into your own workflows.</p>
         </div>
         <div class="feature-card">
             <h3>Entry Management</h3>
-            <p>Create and organize entries with draft and published statuses. Search, filter, and paginate through your content with ease.</p>
+            <p>Create and organize entries with draft and published statuses. Search, filter, and paginate through
+                 your content with ease.</p>
         </div>
         <div class="feature-card">
             <h3>Secure Authentication</h3>
-            <p>User registration with email verification, secure password hashing, session management, and OAuth support. Your data stays yours.</p>
+            <p>User registration with email verification, secure password hashing, session management, and 
+                OAuth support. Your data stays yours.</p>
         </div>
         <div class="feature-card">
             <h3>Admin Dashboard</h3>
-            <p>Admin users can manage all accounts, monitor activity, and maintain the platform from a dedicated admin panel.</p>
+            <p>Admin users can manage all accounts, monitor activity, and maintain the platform from a dedicated 
+                admin panel.</p>
         </div>
     </div>
 </div>

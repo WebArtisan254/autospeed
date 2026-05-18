@@ -7,11 +7,6 @@
 
     <h1>Log In</h1>
 
-    <div class="alert alert-warning">
-        <strong>Prototype Notice:</strong> This app is currently in development and does not yet use HTTPS encryption.
-        Please do not use a real password — use a throwaway password for testing purposes only.
-    </div>
-
     {% if errors.get("__all__") %}
         <div class="alert alert-danger">{{ errors["__all__"] }}</div>
     {% endif %}
