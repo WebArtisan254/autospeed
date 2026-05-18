@@ -1,4 +1,4 @@
-# AutoSpeed 🚗⚡
+# ProAutoType 🚗⚡
 
 AutoSpeed is a full-stack Flask web application for creating, managing, and publishing entries. Built using the application factory pattern with a clean blueprint architecture, it features user authentication, role-based access control, a RESTful API, an admin dashboard, and background job processing.
 
